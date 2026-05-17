@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Tools"
+---
+
 # Tools
 
 ## 学习状态

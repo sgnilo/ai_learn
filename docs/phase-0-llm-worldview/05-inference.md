@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Inference"
+---
+
 # Inference
 
 ## 学习状态

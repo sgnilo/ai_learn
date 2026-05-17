@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Multimodal"
+---
+
 # Multimodal
 
 ## 学习状态

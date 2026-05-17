@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Speculative Decoding"
+---
+
 # Speculative Decoding
 
 ## 学习状态

@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Pretraining"
+---
+
 # Pretraining
 
 ## 学习状态

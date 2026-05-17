@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Multi-agent System"
+---
+
 # Multi-agent System
 
 ## 学习状态

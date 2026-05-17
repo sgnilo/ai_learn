@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Mini GPT Project"
+---
+
 # Mini GPT Project
 
 ## 项目状态

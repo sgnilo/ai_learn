@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Merchant Copilot Project"
+---
+
 # Merchant Copilot Project
 
 ## 项目状态

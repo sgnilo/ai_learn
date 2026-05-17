@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Local Model Lab"
+---
+
 # Local Model Lab
 
 ## 项目状态

@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Reward Modeling"
+---
+
 # Reward Modeling
 
 ## 学习状态

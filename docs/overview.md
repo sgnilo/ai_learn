@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Overview"
+---
+
 # Overview
 
 这套文档用于沉淀从前端工程师转向 AI-native 产品、Agent 系统、模型训练与 AI 系统工程的学习计划和知识点。
@@ -53,4 +58,4 @@
 
 ## GitHub Pages 准备
 
-这个目录按静态 Markdown 文档站点组织。`README.md` 作为站点首页，`roadmap.md` 作为完整路线，`sitemap.md` 作为目录索引。后续如果接入 MkDocs、Docsify、Docusaurus 或 GitHub Pages 原生渲染，目录结构不需要大改。
+这个目录按静态 Markdown 文档站点组织。`index.md` 作为 GitHub Pages 首页，`README.md` 作为仓库浏览入口，`roadmap.md` 作为完整路线，`sitemap.md` 作为目录索引。后续如果接入 MkDocs、Docsify 或 Docusaurus，目录结构不需要大改。

@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Phase 0：建立 AI / LLM 世界观"
+---
+
 # Phase 0：建立 AI / LLM 世界观
 
 ## 学习状态

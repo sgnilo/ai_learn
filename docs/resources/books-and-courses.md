@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Books and Courses"
+---
+
 # Books and Courses
 
 ## 学习状态

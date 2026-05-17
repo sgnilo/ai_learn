@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Dataset Design"
+---
+
 # Dataset Design
 
 ## 学习状态

@@ -1,3 +1,8 @@
+---
+layout: default
+title: "TRL and SFT"
+---
+
 # TRL and SFT
 
 ## 学习状态

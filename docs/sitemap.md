@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Sitemap"
+---
+
 # Sitemap
 
 ## Docs Home

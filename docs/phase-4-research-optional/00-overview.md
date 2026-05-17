@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Phase 4：研究方向（可选）"
+---
+
 # Phase 4：研究方向（可选）
 
 ## 学习状态

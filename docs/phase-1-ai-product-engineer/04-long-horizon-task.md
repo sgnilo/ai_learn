@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Long Horizon Task"
+---
+
 # Long Horizon Task
 
 ## 学习状态

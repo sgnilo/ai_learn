@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Eval / Checkpoint / Deploy"
+---
+
 # Eval / Checkpoint / Deploy
 
 ## 学习状态

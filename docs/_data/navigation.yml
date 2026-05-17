@@ -1,0 +1,32 @@
+- title: Home
+  url: /
+- title: Overview
+  url: /overview.html
+- title: Roadmap
+  url: /roadmap.html
+- title: Sitemap
+  url: /sitemap.html
+- title: Practice
+  url: /practice/
+
+- group: Learning Phases
+  items:
+    - title: Phase 0 · LLM Worldview
+      url: /phase-0-llm-worldview/00-overview.html
+    - title: Phase 1 · AI Product Engineer
+      url: /phase-1-ai-product-engineer/00-overview.html
+    - title: Phase 2 · Fine-tuning
+      url: /phase-2-model-fine-tuning/00-overview.html
+    - title: Phase 3 · AI Systems
+      url: /phase-3-ai-system-engineering/00-overview.html
+    - title: Phase 4 · Research
+      url: /phase-4-research-optional/00-overview.html
+
+- group: Knowledge Base
+  items:
+    - title: Projects
+      url: /sitemap.html#projects
+    - title: Resources
+      url: /sitemap.html#resources
+    - title: Glossary
+      url: /resources/glossary.html

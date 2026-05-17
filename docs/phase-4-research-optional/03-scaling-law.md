@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Scaling Law"
+---
+
 # Scaling Law
 
 ## 学习状态

@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Training Pipeline"
+---
+
 # Training Pipeline
 
 ## 学习状态

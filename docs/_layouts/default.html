@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="{{ site.lang | default: 'zh-CN' }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+    <meta name="description" content="{{ page.description | default: site.description }}">
+    <link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+    <div class="site-shell">
+      <aside class="site-sidebar" aria-label="Site navigation">
+        <a class="brand" href="{{ '/' | relative_url }}">
+          <span class="brand-mark">AI</span>
+          <span>
+            <strong>AI Learn</strong>
+            <small>Roadmap & Notes</small>
+          </span>
+        </a>
+
+        <nav class="nav-list">
+          {% for entry in site.data.navigation %}
+            {% if entry.group %}
+              <div class="nav-group">
+                <p>{{ entry.group }}</p>
+                {% for item in entry.items %}
+                  <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
+            {% endif %}
+          {% endfor %}
+        </nav>
+      </aside>
+
+      <div class="page-shell">
+        <header class="topbar">
+          <details class="mobile-nav">
+            <summary>Menu</summary>
+            <nav>
+              {% for entry in site.data.navigation %}
+                {% if entry.group %}
+                  <p>{{ entry.group }}</p>
+                  {% for item in entry.items %}
+                    <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                  {% endfor %}
+                {% else %}
+                  <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
+                {% endif %}
+              {% endfor %}
+            </nav>
+          </details>
+          <a class="topbar-link" href="{{ '/sitemap.html' | relative_url }}">Sitemap</a>
+        </header>
+
+        <main id="content" class="content" tabindex="-1">
+          <article class="doc-card">
+            {{ content }}
+          </article>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

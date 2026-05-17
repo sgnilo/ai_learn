@@ -1,3 +1,8 @@
+---
+layout: default
+title: "RLVR"
+---
+
 # RLVR
 
 ## 学习状态

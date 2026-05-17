@@ -1,6 +1,7 @@
 ---
 layout: default
-title: "AI Learn Docs"
+title: AI Learn Docs
+permalink: /
 ---
 
 # AI Learn Docs

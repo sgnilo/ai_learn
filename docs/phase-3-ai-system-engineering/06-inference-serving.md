@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Inference Serving"
+---
+
 # Inference Serving
 
 ## 学习状态

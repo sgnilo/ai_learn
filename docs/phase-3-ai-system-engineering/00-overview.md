@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Phase 3：AI 系统工程"
+---
+
 # Phase 3：AI 系统工程
 
 ## 学习状态

@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Papers"
+---
+
 # Papers
 
 ## 学习状态

@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Phase 1：AI Product Engineer"
+---
+
 # Phase 1：AI Product Engineer
 
 ## 学习状态

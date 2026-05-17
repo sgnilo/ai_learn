@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Embedding"
+---
+
 # Embedding
 
 ## 学习状态

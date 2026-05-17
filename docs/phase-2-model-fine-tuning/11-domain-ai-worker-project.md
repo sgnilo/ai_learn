@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Domain AI Worker Project"
+---
+
 # Domain AI Worker Project
 
 ## 项目状态

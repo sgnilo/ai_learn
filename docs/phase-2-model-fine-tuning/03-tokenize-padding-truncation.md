@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Tokenize / Padding / Truncation"
+---
+
 # Tokenize / Padding / Truncation
 
 ## 学习状态

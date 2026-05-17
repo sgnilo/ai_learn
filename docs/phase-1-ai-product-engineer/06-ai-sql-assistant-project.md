@@ -1,3 +1,8 @@
+---
+layout: default
+title: "AI SQL Assistant Project"
+---
+
 # AI SQL Assistant Project
 
 ## 项目状态

@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Alignment Research"
+---
+
 # Alignment Research
 
 ## 学习状态

@@ -1,3 +1,8 @@
+---
+layout: default
+title: "AI Code Practice"
+---
+
 # AI Code Practice
 
 这个目录用于放 AI / LLM 学习过程中的代码练习。

@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Axolotl Practice"
+---
+
 # Axolotl Practice
 
 ## 实践状态

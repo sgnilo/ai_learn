@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Phase 2：模型微调与训练"
+---
+
 # Phase 2：模型微调与训练
 
 ## 学习状态

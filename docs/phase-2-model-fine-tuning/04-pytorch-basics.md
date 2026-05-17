@@ -1,3 +1,8 @@
+---
+layout: default
+title: "PyTorch Basics"
+---
+
 # PyTorch Basics
 
 ## 学习状态

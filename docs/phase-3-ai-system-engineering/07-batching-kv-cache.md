@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Batching and KV Cache"
+---
+
 # Batching and KV Cache
 
 ## 学习状态

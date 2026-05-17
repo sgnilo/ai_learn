@@ -1,3 +1,8 @@
+---
+layout: default
+title: "AI Workflow Design"
+---
+
 # AI Workflow Design
 
 ## 学习状态

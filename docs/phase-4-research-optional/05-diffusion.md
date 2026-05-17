@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Diffusion"
+---
+
 # Diffusion
 
 ## 学习状态

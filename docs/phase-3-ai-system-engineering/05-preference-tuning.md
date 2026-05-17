@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Preference Tuning"
+---
+
 # Preference Tuning
 
 ## 学习状态

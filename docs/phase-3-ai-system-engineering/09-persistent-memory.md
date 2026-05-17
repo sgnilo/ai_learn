@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Persistent Memory"
+---
+
 # Persistent Memory
 
 ## 学习状态

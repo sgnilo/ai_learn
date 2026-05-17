@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Glossary"
+---
+
 # Glossary
 
 ## 学习状态
