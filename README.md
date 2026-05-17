@@ -106,6 +106,12 @@ projects/
   qlora-domain-worker/
   eval-system/
 
+practice/
+  README.md
+  pyproject.toml
+  src/
+  tests/
+
 resources/
   books-and-courses.md
   papers.md
