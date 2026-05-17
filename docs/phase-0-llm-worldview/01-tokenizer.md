@@ -7,17 +7,67 @@ title: "Tokenizer"
 
 ## 学习状态
 
-学习中。
+已完成第一轮概念学习和字符级 tokenizer 实践。
 
 ## 当前理解
 
 Tokenizer 的作用是把人类文本转换成模型能处理的 token id 序列。
+
+更完整的链路是：
+
+```text
+用户输入文本
+-> tokenizer.encode
+-> token ids
+-> embedding
+-> 模型计算
+-> 输出 token id 序列
+-> tokenizer.decode
+-> 模型回答文本
+```
+
+模型概念上是在预测下一个 token，工程上通常表现为预测下一个 token id。最后一层输出的是长度等于 `vocab_size` 的 logits，每个位置对应词表中的一个 token id。
 
 ## 核心概念
 
 - Token 不一定等于单词，可能是字、词、子词、符号或字节片段。
 - LLM 不直接处理文字，而是处理 token id 经过 embedding 后得到的向量。
 - Tokenizer 会影响 context window、推理成本、多语言能力、代码能力和训练效果。
+- `vocab` 是 token 词表，定义了有哪些 token、token 到 id 的映射、id 到 token 的反向映射。
+- `encode` 把真实文本映射到 tokenizer 定义的 token id 空间。
+- `decode` 把 token id 序列映射回人类可读文本。
+- Special token 是词表中的正式 token，例如 `<unk>`、`<pad>`、`<eos>`，也应该有自己的整数 token id。
+
+## 字符级 tokenizer 实践理解
+
+当前练习实现的是教学版 `CharTokenizer`。它把每个字符当作一个 token，用 `corpus` 构建初始词表。
+
+`__init__` 负责构建和维护：
+
+- 有序 token 列表，例如 `(" ", "d", "e", "h", "l", "o", "r", "w")`
+- token 到 token id 的映射，例如 `"h" -> 3`
+- token id 到 token 的反向映射，例如 `3 -> "h"`
+
+`encode` 负责：
+
+```text
+"hello" -> ["h", "e", "l", "l", "o"] -> [id_h, id_e, id_l, id_l, id_o]
+```
+
+`decode` 负责：
+
+```text
+[id_h, id_e, id_l, id_l, id_o] -> ["h", "e", "l", "l", "o"] -> "hello"
+```
+
+这里需要保持一个重要边界：
+
+```text
+encode 永远返回 list[int]
+decode 永远接收 list[int]
+```
+
+因此 `<unk>` 不应该作为字符串混进 token id 序列，而应该先进入 vocab，拥有自己的整数 id。未知字符在 `encode` 时映射到 `<unk>` 对应的 id；`decode` 时再把这个 id 还原成字符串 `<unk>`。
 
 ## 主流方案
 
@@ -431,27 +481,147 @@ Unigram：先给很多候选切法，再保留整体概率最好的那批子词
 
 ## 待学习问题
 
-- BPE、SentencePiece、WordPiece 的区别是什么？
-- BOS、EOS、PAD、UNK 等 special token 分别做什么？
+- BOS、EOS、PAD 等 special token 分别做什么？
 - truncation 和 padding 为什么会影响训练？
 - 中文、英文、代码在 tokenizer 上有什么差异？
+- 真实 byte-level BPE 如何避免大多数 OOV 问题？
 
 ## 实践记录
 
-尚未开始。
+### 2026-05-17：字符级 tokenizer 与 `<unk>` 练习
+
+实践目录：
+
+- 代码：`practice/src/ai_practice/tokenizer.py`
+- 测试：`practice/tests/test_tokenizer.py`
+
+本轮完成的理解：
+
+- `vocab_size` 是 token 词表大小，不是语料长度。
+- `encode` 是从文本到 token id 空间的映射。
+- `decode` 是从 token id 序列到文本的反向映射。
+- 模型输出通常也是 token id 序列，最后靠 tokenizer decode 成人类可读文本。
+- 词表外字符属于 OOV。教学实现可以报错，也可以通过 `<unk>` 兜底。
+- `<unk>` 要作为正式 token 加入词表，而不是把字符串 `"<unk>"` 直接塞进 `list[int]`。
+
+当前测试覆盖：
+
+- round trip：编码后再解码可以回到预期文本。
+- 未知字符：可以映射到 `<unk>`。
+- 未知 token id：当前设计选择解码为 `<unk>`。
+
+练习代码段：
+
+```python
+class CharTokenizer:
+    """Encode text as character ids and decode ids back to text."""
+
+    def __init__(self, corpus: str) -> None:
+        if not corpus:
+            raise ValueError("corpus must not be empty")
+
+        UNKNOWN_TOKEN = "<unk>"
+        self._chars = tuple(sorted(set(corpus))) + (UNKNOWN_TOKEN,)
+        self._char_to_id = {char: index for index, char in enumerate(self._chars)}
+        self._id_to_char = {index: char for index, char in enumerate(self._chars)}
+        self.UNKNOWN_TOKEN = UNKNOWN_TOKEN
+        self.UNKNOWN_TOKEN_ID = self._char_to_id[UNKNOWN_TOKEN]
+
+    @property
+    def vocab_size(self) -> int:
+        return len(self._chars)
+
+    def encode(self, text: str) -> list[int]:
+        result = []
+        for char in text:
+            result.append(self._char_to_id.get(char, self.UNKNOWN_TOKEN_ID))
+        return result
+
+    def decode(self, token_ids: list[int]) -> str:
+        raw = []
+        for token_id in token_ids:
+            if token_id not in self._id_to_char:
+                raw.append(self._id_to_char[self.UNKNOWN_TOKEN_ID])
+            else:
+                raw.append(self._id_to_char[token_id])
+        return "".join(raw)
+```
+
+练习测试段：
+
+```python
+def test_round_trip(self) -> None:
+    tokenizer = CharTokenizer("hello world")
+
+    token_ids = tokenizer.encode("hei")
+
+    self.assertEqual(tokenizer.decode(token_ids), "he<unk>")
+    self.assertEqual(tokenizer.vocab_size, len(set("hello world")) + 1)
+
+
+def test_rejects_unknown_character(self) -> None:
+    tokenizer = CharTokenizer("abc")
+    token_ids = tokenizer.encode("hei")
+
+    self.assertEqual(tokenizer.decode(token_ids), "<unk><unk><unk>")
+
+
+def test_rejects_unknown_token_id(self) -> None:
+    tokenizer = CharTokenizer("abc")
+
+    self.assertEqual(tokenizer.decode([0, 99]), "a<unk>")
+```
 
 ## 关键代码
 
-尚未开始。
+本节作为实践记录里的代码索引。后续每次练习都直接在对应实践条目下附上实现片段和测试片段。
+
+本轮核心结构：
+
+```python
+self._chars = tuple(sorted(set(corpus))) + (UNKNOWN_TOKEN,)
+self._char_to_id = {char: index for index, char in enumerate(self._chars)}
+self._id_to_char = {index: char for index, char in enumerate(self._chars)}
+self.UNKNOWN_TOKEN_ID = self._char_to_id[UNKNOWN_TOKEN]
+```
+
+编码边界：
+
+```python
+result.append(self._char_to_id.get(char, self.UNKNOWN_TOKEN_ID))
+```
+
+解码边界：
+
+```python
+if token_id not in self._id_to_char:
+    raw.append(self._id_to_char[self.UNKNOWN_TOKEN_ID])
+else:
+    raw.append(self._id_to_char[token_id])
+```
 
 ## 踩坑
 
-暂无。
+- 不要让 `encode` 返回混合类型，例如 `[3, 2, "<unk>"]`。token id 序列应该保持纯整数。
+- 临时 `print` 可以帮助观察词表，但不应该长期留在 tokenizer 实现里。
+- 如果已经用 `.get(...)` 或 `if token_id not in ...` 做了显式兜底，外层 `try/except KeyError` 往往就没有意义。
+- `decode` 遇到未知 id 时是报错还是映射到 `<unk>` 是设计选择，但输入类型仍应保持为 `list[int]`。
 
 ## 复盘
 
-尚未复盘。
+第一轮 tokenizer 练习的重点不是追求真实 LLM tokenizer 的复杂度，而是建立几个稳定直觉：
+
+```text
+文本不是直接进入模型
+模型处理的是 token id 对应的 embedding
+模型预测的是词表位置上的概率分布
+decode 是把 token id 序列重新序列化为文本
+```
+
+字符级 tokenizer 足够暴露核心机制，但它不是现代 LLM 的主流方案。后续要继续理解 BPE、byte-level BPE 和 SentencePiece 如何在词表大小、序列长度和 OOV 覆盖之间做工程平衡。
 
 ## 下一步
 
-使用 Hugging Face tokenizer 对中文、英文、代码分别编码，观察 token 切分结果。
+1. 清理当前 `CharTokenizer` 实现里的调试输出和无效异常处理。
+2. 使用 Hugging Face tokenizer 对中文、英文、代码分别编码，观察 token 切分结果。
+3. 对比字符级 tokenizer 和真实 BPE tokenizer 在同一句文本上的 token 数差异。

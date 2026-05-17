@@ -10,9 +10,15 @@ class CharTokenizer:
         if not corpus:
             raise ValueError("corpus must not be empty")
 
-        self._chars = tuple(sorted(set(corpus)))
+        UNKNOWN_TOKEN = "<unk>"
+        self._chars = tuple(sorted(set(corpus)),) + (UNKNOWN_TOKEN,)
         self._char_to_id = {char: index for index, char in enumerate(self._chars)}
         self._id_to_char = {index: char for index, char in enumerate(self._chars)}
+        self.UNKNOWN_TOKEN = UNKNOWN_TOKEN
+        self.UNKNOWN_TOKEN_ID = self._char_to_id[UNKNOWN_TOKEN]
+        print('chars', self._chars)
+        print('char_to_id', self._char_to_id)
+        print('id_to_char', self._id_to_char)
 
     @property
     def vocab_size(self) -> int:
@@ -20,12 +26,21 @@ class CharTokenizer:
 
     def encode(self, text: str) -> list[int]:
         try:
-            return [self._char_to_id[char] for char in text]
+            result = []
+            for char in text:
+                result.append(self._char_to_id.get(char, self.UNKNOWN_TOKEN_ID))
+            return result
         except KeyError as error:
             raise ValueError(f"unknown character: {error.args[0]!r}") from error
 
     def decode(self, token_ids: list[int]) -> str:
         try:
-            return "".join(self._id_to_char[token_id] for token_id in token_ids)
+            raw = []
+            for token_id in token_ids:
+                if token_id not in self._id_to_char:
+                    raw.append(self._id_to_char[self.UNKNOWN_TOKEN_ID])
+                else:
+                    raw.append(self._id_to_char[token_id])
+            return "".join(raw)
         except KeyError as error:
             raise ValueError(f"unknown token id: {error.args[0]!r}") from error

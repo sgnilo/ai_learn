@@ -7,22 +7,21 @@ class CharTokenizerTest(unittest.TestCase):
     def test_round_trip(self) -> None:
         tokenizer = CharTokenizer("hello world")
 
-        token_ids = tokenizer.encode("hello")
+        token_ids = tokenizer.encode("hei")
 
-        self.assertEqual(tokenizer.decode(token_ids), "hello")
-        self.assertEqual(tokenizer.vocab_size, len(set("hello world")))
+        self.assertEqual(tokenizer.decode(token_ids), "he<unk>")
+        self.assertEqual(tokenizer.vocab_size, len(set("hello world")) + 1)
 
     def test_rejects_unknown_character(self) -> None:
         tokenizer = CharTokenizer("abc")
+        token_ids = tokenizer.encode("hei")
 
-        with self.assertRaisesRegex(ValueError, "unknown character"):
-            tokenizer.encode("abcd")
+        self.assertEqual(tokenizer.decode(token_ids), "<unk><unk><unk>")
 
     def test_rejects_unknown_token_id(self) -> None:
         tokenizer = CharTokenizer("abc")
 
-        with self.assertRaisesRegex(ValueError, "unknown token id"):
-            tokenizer.decode([0, 99])
+        self.assertEqual(tokenizer.decode([0, 99]), "a<unk>")
 
 
 if __name__ == "__main__":

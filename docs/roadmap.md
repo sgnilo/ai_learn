@@ -353,6 +353,7 @@ Eval
 
 | 日期 | 阶段 | 学习内容 | 产出 | 下一步 |
 | --- | --- | --- | --- | --- |
+| 2026-05-17 | Phase 0 / Tokenizer | 完成字符级 tokenizer 第一轮实践，理解 vocab、token id、encode/decode、OOV 和 `<unk>` | docs/phase-0-llm-worldview/01-tokenizer.md、practice/src/ai_practice/tokenizer.py、practice/tests/test_tokenizer.py | 清理练习代码后，对比真实 BPE tokenizer 的中文、英文、代码切分 |
 | 2026-05-17 | 总路线 | 创建学习路线总目录 | docs/README.md | 创建 Phase 0 目录与第一篇 tokenizer 笔记 |
 | 2026-05-17 | 文档初始化 | 按路线创建分阶段文档集合 | docs/phase-*、docs/projects、docs/resources | 从 Phase 0 的 tokenizer 开始学习 |
 | 2026-05-17 | 目录治理 | 将学习文档统一迁入 docs | docs/、practice/ | 继续保持文档与练习代码分离 |
