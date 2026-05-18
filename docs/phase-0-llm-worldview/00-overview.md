@@ -46,7 +46,7 @@ title: "Phase 0：建立 AI / LLM 世界观"
 | --- | --- | --- |
 | Tokenizer | 第一轮完成 | [01-tokenizer.md](./01-tokenizer.md) |
 | Embedding | 学习中 | [02-embedding.md](./02-embedding.md) |
-| Transformer / Attention | 尚未学习 | [03-transformer-attention.md](./03-transformer-attention.md) |
+| Transformer / Attention | 学习中 | [03-transformer-attention.md](./03-transformer-attention.md) |
 | Context Window / KV Cache | 尚未学习 | [04-context-window-kv-cache.md](./04-context-window-kv-cache.md) |
 | Inference | 尚未学习 | [05-inference.md](./05-inference.md) |
 | RAG | 尚未学习 | [06-rag.md](./06-rag.md) |
