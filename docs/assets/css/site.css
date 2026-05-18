@@ -147,6 +147,28 @@ a:hover {
   color: var(--accent-strong);
 }
 
+.nav-list a.is-active,
+.mobile-nav a.is-active {
+  background: #e8f2ef;
+  color: var(--accent-strong);
+}
+
+.nav-list a.is-current,
+.mobile-nav a.is-current {
+  box-shadow: inset 3px 0 0 var(--accent);
+  font-weight: 700;
+}
+
+.nav-list .nav-parent.is-active,
+.mobile-nav .nav-parent.is-active {
+  background: #eef6f3;
+}
+
+.nav-list .nav-parent.is-current,
+.mobile-nav .nav-parent.is-current {
+  background: #e0eee9;
+}
+
 .nav-group {
   margin-top: 18px;
 }

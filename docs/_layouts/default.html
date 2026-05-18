@@ -21,23 +21,45 @@
         </a>
 
         <nav class="nav-list">
+          {% assign current_url = page.url %}
           {% for entry in site.data.navigation %}
             {% if entry.group %}
               <div class="nav-group">
                 <p>{{ entry.group }}</p>
                 {% for item in entry.items %}
-                  <a class="nav-parent" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                  {% assign item_active = false %}
+                  {% assign item_current = false %}
+                  {% if current_url == item.url %}
+                    {% assign item_active = true %}
+                    {% assign item_current = true %}
+                  {% endif %}
+                  {% if item.children %}
+                    {% for child in item.children %}
+                      {% if current_url == child.url %}
+                        {% assign item_active = true %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+                  <a class="nav-parent{% if item_active %} is-active{% endif %}{% if item_current %} is-current{% endif %}" href="{{ item.url | relative_url }}"{% if item_current %} aria-current="page"{% endif %}>{{ item.title }}</a>
                   {% if item.children %}
                     <div class="nav-children" aria-label="{{ item.title }} pages">
                       {% for child in item.children %}
-                        <a href="{{ child.url | relative_url }}">{{ child.title }}</a>
+                        {% assign child_current = false %}
+                        {% if current_url == child.url %}
+                          {% assign child_current = true %}
+                        {% endif %}
+                        <a class="{% if child_current %}is-active is-current{% endif %}" href="{{ child.url | relative_url }}"{% if child_current %} aria-current="page"{% endif %}>{{ child.title }}</a>
                       {% endfor %}
                     </div>
                   {% endif %}
                 {% endfor %}
               </div>
             {% else %}
-              <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
+              {% assign entry_current = false %}
+              {% if current_url == entry.url %}
+                {% assign entry_current = true %}
+              {% endif %}
+              <a class="{% if entry_current %}is-active is-current{% endif %}" href="{{ entry.url | relative_url }}"{% if entry_current %} aria-current="page"{% endif %}>{{ entry.title }}</a>
             {% endif %}
           {% endfor %}
         </nav>
@@ -48,21 +70,43 @@
           <details class="mobile-nav">
             <summary>Menu</summary>
             <nav>
+              {% assign current_url = page.url %}
               {% for entry in site.data.navigation %}
                 {% if entry.group %}
                   <p>{{ entry.group }}</p>
                   {% for item in entry.items %}
-                    <a class="nav-parent" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                    {% assign item_active = false %}
+                    {% assign item_current = false %}
+                    {% if current_url == item.url %}
+                      {% assign item_active = true %}
+                      {% assign item_current = true %}
+                    {% endif %}
+                    {% if item.children %}
+                      {% for child in item.children %}
+                        {% if current_url == child.url %}
+                          {% assign item_active = true %}
+                        {% endif %}
+                      {% endfor %}
+                    {% endif %}
+                    <a class="nav-parent{% if item_active %} is-active{% endif %}{% if item_current %} is-current{% endif %}" href="{{ item.url | relative_url }}"{% if item_current %} aria-current="page"{% endif %}>{{ item.title }}</a>
                     {% if item.children %}
                       <div class="nav-children" aria-label="{{ item.title }} pages">
                         {% for child in item.children %}
-                          <a href="{{ child.url | relative_url }}">{{ child.title }}</a>
+                          {% assign child_current = false %}
+                          {% if current_url == child.url %}
+                            {% assign child_current = true %}
+                          {% endif %}
+                          <a class="{% if child_current %}is-active is-current{% endif %}" href="{{ child.url | relative_url }}"{% if child_current %} aria-current="page"{% endif %}>{{ child.title }}</a>
                         {% endfor %}
                       </div>
                     {% endif %}
                   {% endfor %}
                 {% else %}
-                  <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
+                  {% assign entry_current = false %}
+                  {% if current_url == entry.url %}
+                    {% assign entry_current = true %}
+                  {% endif %}
+                  <a class="{% if entry_current %}is-active is-current{% endif %}" href="{{ entry.url | relative_url }}"{% if entry_current %} aria-current="page"{% endif %}>{{ entry.title }}</a>
                 {% endif %}
               {% endfor %}
             </nav>
