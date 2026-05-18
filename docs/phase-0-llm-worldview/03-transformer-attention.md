@@ -278,6 +278,166 @@ hidden_size -> intermediate_size -> hidden_size
 
 Attention 负责 token 之间交换信息；FFN 负责在每个 token 内部把特征表达加工得更丰富。
 
+## Residual Connection 和 Norm
+
+残差连接实现上通常就是同 shape hidden states 的逐元素加法：
+
+```text
+new_x = x + sublayer(x)
+```
+
+在现代 LLM 常见的 pre-norm 结构里，更接近：
+
+```text
+attention_delta = Attention(Norm(x))
+x = x + attention_delta
+
+ffn_delta = FFN(Norm(x))
+x = x + ffn_delta
+```
+
+这里相加的是前向计算中的 hidden states / activation，不是模型参数。
+
+如果：
+
+```text
+x.shape = [batch_size, seq_len, hidden_size]
+attention_delta.shape = [batch_size, seq_len, hidden_size]
+```
+
+那么相加是逐元素发生的：
+
+```text
+new_x[b][t][h] = x[b][t][h] + attention_delta[b][t][h]
+```
+
+也就是说：
+
+```text
+batch 维度不变
+token 位置不变
+hidden_size 维度不变
+每个 token 的 hidden vector 被加上一个修正量
+```
+
+之所以单独叫 residual connection，是因为它改变了子层的学习角色：
+
+```text
+没有残差：new_x = sublayer(x)
+有残差：new_x = x + sublayer(x)
+```
+
+子层不必从零生成完整新表示，而是学习“相对原输入要改多少”。这个差值就是 residual / 残差。
+
+Norm 的作用是把进入 attention / FFN 的 hidden vector 调到稳定尺度。
+
+以 LayerNorm 的直觉版为例，它对每个 token 的 hidden vector 做归一化：
+
+```text
+x_i: [hidden_size]
+mean = 平均值
+variance = 方差
+normalized = (x_i - mean) / sqrt(variance + eps)
+output = normalized * gamma + beta
+```
+
+其中 `gamma` 和 `beta` 是可训练参数，用来让模型在稳定数值尺度后仍然可以学习合适的缩放和平移。
+
+很多现代 LLM 使用 RMSNorm。它通常不减均值，而是按均方根缩放：
+
+```text
+rms = sqrt(mean(x_i^2) + eps)
+output = x_i / rms * weight
+```
+
+可以先这样记：
+
+```text
+Residual：保留原表示，叠加子层学到的修正量
+Norm：稳定每个 token 的 hidden vector 数值尺度
+```
+
+从高维空间看，Norm 的思想是：不要让每个 token 的 hidden vector 以任意尺度、任意偏移进入 attention / FFN，而是先把它拉回一个更稳定的数值范围。
+
+以 LayerNorm 为例：
+
+```text
+x_i = [2, 4, 6]
+mean = 4
+std ≈ 1.63
+normalized = (x_i - mean) / std ≈ [-1.22, 0, 1.22]
+```
+
+它做了两件事：
+
+```text
+中心化：减去均值，让整体偏移回到 0 附近
+尺度化：除以标准差，让向量各维度的整体波动范围更稳定
+```
+
+然后再通过可训练参数恢复表达自由度：
+
+```text
+output = normalized * gamma + beta
+```
+
+可以理解为：
+
+```text
+先把输入放到稳定坐标系里
+再允许模型学会需要的缩放和平移
+```
+
+这会让 attention / FFN 看到的输入分布更稳定，从而让它们输出的 `delta` 不容易因为输入尺度突然变大而爆掉。
+
+如果没有 Norm，多层网络中每一层都会改变 hidden states 的数值分布：
+
+```text
+第 1 层输出稍微变大
+-> 第 2 层基于更大的输入继续计算
+-> 第 3 层可能更大
+-> 深层后数值可能越来越不稳定
+```
+
+Norm 相当于在每个子层前做一次尺度校准：
+
+```text
+Norm(x)
+-> Attention / FFN
+-> delta
+-> x + delta
+```
+
+它不能保证绝对不会出现极端值，但能显著降低数值尺度漂移，让训练更稳定、梯度更可控、深层堆叠更容易。
+
+需要区分 Norm 和 Residual 的角色：
+
+```text
+Norm：稳定送入 attention / FFN 的输入尺度
+Residual：把 attention / FFN 算出的 delta 加回原 hidden states
+```
+
+因此，Norm 不是在假设 delta 应该接近 0。`delta ≈ 0` 是 residual 结构下的一种可能学习结果：如果某层不需要大幅修改当前表示，子层可以学到输出很小的修正量。
+
+LayerNorm 里的 `gamma` 和 `beta` 作用在 normalized hidden vector 上：
+
+```text
+output = normalized * gamma + beta
+```
+
+它们不是直接控制 residual 增量大小，而是控制送入 attention / FFN 之前的 normalized 表示如何按维度缩放和平移。
+
+可以这样理解：
+
+```text
+Norm 先把 hidden vector 拉回稳定区域
+gamma / beta 提供可训练的缩放和平移自由度
+Attention / FFN 基于这个更稳定的输入计算 delta
+Residual 再把 delta 加回原 hidden states
+```
+
+所以 `gamma / beta` 更像是 Norm 后恢复表达能力的可训练自由度，而不是对 delta 的直接开关。
+
 ## 输出到哪里？
 
 很多层 Transformer block 后，输出形状仍然是：
@@ -323,6 +483,10 @@ logits[:, -1, :]
 - Self-attention 只连接当前上下文；不同上下文之间的规律通过共享参数更新沉淀下来。
 - FFN / MLP 纵向加工每个 token 自身的特征表达。
 - Residual 和 Norm 负责稳定信息传递和数值分布。
+- Residual 操作的是 hidden states，不改变 batch、token 位置或 hidden_size 结构。
+- Norm 通常对每个 token 的 hidden vector 做归一化，稳定进入 attention / FFN 的数值尺度。
+- Norm 的高维直觉是把 hidden vector 拉回稳定尺度，再通过可训练缩放和平移保留表达能力。
+- Norm 稳定的是子层输入；Residual 才是把子层输出的 delta 加回原 hidden states。
 - 多层传递后，每个 token 的 hidden state 会逐步变成上下文相关表示。
 
 练习代码段：
@@ -352,6 +516,9 @@ Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
 - 不要把 attention 矩阵理解成最终输出；它只是 token 之间的信息路由权重。
 - 不要以为不同训练样本会在 attention 里互相看到；它们只通过共享参数的训练更新产生间接联系。
 - 不要把 residual 理解成“把结果替换原始数据”；它是在原表示上叠加新信息。
+- 不要把 residual 加法理解成参数相加；它加的是当前前向计算里的 hidden states / activation。
+- 不要把 shape 写法神秘化；`[batch_size, seq_len, hidden_size]` 就是三层数组/张量三个轴上的长度。
+- 不要把 `gamma / beta` 理解成直接控制 residual delta；它们控制的是 Norm 后表示的缩放和平移。
 - 不要把 FFN 理解成 token 之间交互；token 间交互主要发生在 attention。
 
 ## 复盘

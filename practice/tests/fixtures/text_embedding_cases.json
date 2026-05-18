@@ -1,0 +1,22 @@
+{
+  "cases": [
+    {
+      "id": "refund_vs_profile",
+      "query": "How do I request a refund?",
+      "positive": "What is the refund process?",
+      "negative": "How do I change my profile avatar?"
+    },
+    {
+      "id": "password_vs_invoice",
+      "query": "I forgot my password and cannot sign in.",
+      "positive": "How can I reset my login password?",
+      "negative": "Where can I download my invoice?"
+    },
+    {
+      "id": "code_profile_vs_policy",
+      "query": "function getUserProfileById returns user profile data",
+      "positive": "get user profile by id from the user service",
+      "negative": "company refund policy and cancellation rules"
+    }
+  ]
+}

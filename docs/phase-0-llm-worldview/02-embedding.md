@@ -548,6 +548,177 @@ intermediate_size
 
 工程上也不会总选最大模型，因为参数量越大，显存、延迟、吞吐、部署和 fine-tuning 成本也越高。实际选型要看任务复杂度和成本边界。
 
+## 向量相似度：L2、Cosine、Dot Product
+
+常见向量相似度 / 距离计算有三类：
+
+```text
+L2 distance：看两个点的直线距离
+Cosine similarity：看两个向量方向是否接近
+Dot product：看方向和长度的综合相似度
+```
+
+L2 距离：
+
+```text
+distance(a, b) = sqrt(sum((a_i - b_i)^2))
+```
+
+距离越小越相似。二维直觉：
+
+```text
+A = [1, 2]
+B = [4, 6]
+distance = sqrt((1-4)^2 + (2-6)^2) = 5
+```
+
+Cosine similarity：
+
+```text
+cosine(a, b) = dot(a, b) / (norm(a) * norm(b))
+```
+
+越接近 1，方向越相似。
+
+Dot product：
+
+```text
+dot(a, b) = sum(a_i * b_i)
+```
+
+分数越大越相似，但它同时受到方向和向量长度影响。
+
+从几何上看，向量不只是一个点，也可以理解成从原点出发的箭头。它同时有：
+
+```text
+方向
+长度
+```
+
+Cosine similarity 看的是两个向量的夹角：
+
+```text
+夹角 0°：方向完全一样，cosine = 1
+夹角 90°：方向无关，cosine = 0
+夹角 180°：方向相反，cosine = -1
+```
+
+所以：
+
+```text
+cosine 越大
+-> 夹角越小
+-> 方向越接近
+-> 语义越可能相似
+```
+
+Dot product 可以理解成“一个向量在另一个向量方向上的投影有多强”：
+
+```text
+两个向量方向越一致，点积越大
+两个向量越长，点积也越大
+两个向量垂直，点积为 0
+方向相反，点积为负
+```
+
+它们的关系是：
+
+```text
+a · b = |a| * |b| * cos(theta)
+```
+
+Cosine similarity 就是把长度影响除掉：
+
+```text
+cos(theta) = (a · b) / (|a| * |b|)
+```
+
+因此可以这样记：
+
+```text
+dot product：方向相似度 + 长度影响
+cosine similarity：去掉长度影响，只看方向相似度
+```
+
+为什么 text embedding 常用 cosine / normalized dot product？
+
+很多语义 embedding 更希望比较“方向”是否接近，而不是绝对长度是否接近。例如：
+
+```text
+A = [1, 1]
+B = [10, 10]
+C = [1, -1]
+```
+
+`A` 和 `B` 方向完全一样：
+
+```text
+cos(A, B) = 1
+```
+
+但 L2 距离很远：
+
+```text
+distance(A, B) ≈ 12.7
+```
+
+`A` 和 `C` 的 L2 更近：
+
+```text
+distance(A, C) = 2
+```
+
+但方向差异明显：
+
+```text
+cos(A, C) = 0
+```
+
+所以如果语义主要编码在方向里，L2 可能会被向量长度干扰。
+
+生产里常见做法：
+
+```text
+先把 embedding 归一化成单位向量
+再用 dot product / inner product 检索
+```
+
+归一化后：
+
+```text
+norm(a) = 1
+norm(b) = 1
+cosine(a, b) = dot(a, b)
+```
+
+这在语义上等价于 cosine，在工程上更容易用矩阵乘法和向量数据库加速。
+
+L2 不是不能用。适合的情况包括：
+
+```text
+向量长度本身有意义
+模型就是按 L2 距离训练的
+向量已经归一化，此时 L2 排序和 cosine 排序一致
+聚类或几何距离任务
+```
+
+归一化向量下：
+
+```text
+L2^2 = ||a - b||^2
+     = ||a||^2 + ||b||^2 - 2a·b
+     = 2 - 2cos(a, b)
+```
+
+因此：
+
+```text
+cosine 越大
+L2 越小
+```
+
+排序关系一致。
+
 ## 已厘清问题
 
 - Embedding 维度代表什么：`hidden_size` 是每个 token 向量的长度，不是二维矩阵的空间维度。
@@ -559,12 +730,11 @@ intermediate_size
 - LLM 训练主链路：tokenized 数据反复预测下一个 token，通过 loss 更新 embedding、Transformer 和输出层参数。
 - LLM 推理主链路：使用固定权重循环预测下一个 token，并追加回上下文，最后 decode 成文本。
 - 参数规模和能力关系：模型越大通常能力上限越高，但前提是数据、训练、架构和后训练也跟得上。
+- 向量相似度：L2 看位置距离，cosine 看方向，dot product 看方向和长度；text embedding 常用 cosine 或归一化点积。
 
 ## 待学习问题
 
 - Token embedding 和 text embedding 有什么区别？
-- 为什么向量相似度可以用于语义检索？
-- cosine similarity、dot product、L2 distance 的使用场景是什么？
 - 反向传播如何知道应该更新哪些参数、往哪个方向更新？
 - loss、gradient、optimizer step 如何系统性串起来？
 - position embedding / positional encoding 如何给 token 向量加入位置信息？
@@ -694,6 +864,118 @@ lm_head_params = hidden_size * vocab_size
 transformer_params ≈ num_layers * hidden_size^2 * constants
 ```
 
+### 2026-05-18：向量相似度选择
+
+本轮完成的理解：
+
+- L2、cosine、dot product 都可以衡量向量相近，但含义不同。
+- L2 看两个点的绝对距离，不一定等于语义更接近。
+- Cosine 更关注方向，适合很多 text embedding 的语义相似度。
+- Dot product 在未归一化时同时受方向和长度影响。
+- 向量归一化后，dot product 等价于 cosine，L2 排序也和 cosine 单调对应。
+- 生产检索常用 normalized embedding + dot product，是语义和工程效率的折中。
+
+练习代码段：
+
+```python
+dot = sum(a * b for a, b in zip(left, right))
+left_norm = sqrt(sum(a * a for a in left))
+right_norm = sqrt(sum(b * b for b in right))
+score = dot / (left_norm * right_norm)
+```
+
+### 2026-05-19：Text embedding 相似度练习
+
+实践目录：
+
+- 代码：`practice/src/ai_practice/text_embedding.py`
+- 测试：`practice/tests/test_text_embedding.py`
+- 测试数据：`practice/tests/fixtures/text_embedding_cases.json`
+
+本轮完成的理解：
+
+- text embedding 相似度练习可以先把“模型产出向量”和“相似度计算/排序逻辑”拆开。
+- `EmbeddingModel` 只需要提供 `embed_texts(texts) -> vectors` 接口。
+- `cosine_similarity` 负责比较两个向量方向是否接近。
+- `TextEmbeddingSimilarity.score` 负责把两段文本转成向量并计算相似度。
+- `TextEmbeddingSimilarity.rank` 负责对候选文本按相似度从高到低排序。
+- 测试中用 deterministic fake embedding model，避免依赖网络下载真实模型；后续可以替换成真实 embedding backend。
+
+练习代码段：
+
+```python
+from dataclasses import dataclass
+import math
+
+
+@dataclass
+class RankedText:
+    text: str
+    score: float
+
+
+def cosine_similarity(left: list[float], right: list[float]) -> float:
+    if len(left) != len(right):
+        raise ValueError("same dimensions")
+
+    left_norm = math.sqrt(sum(x * x for x in left))
+    right_norm = math.sqrt(sum(x * x for x in right))
+
+    if left_norm == 0 or right_norm == 0:
+        return 0.0
+
+    dot = sum(a * b for a, b in zip(left, right))
+    return dot / (left_norm * right_norm)
+
+
+class TextEmbeddingSimilarity:
+    def __init__(self, embedding_model) -> None:
+        self._embedding_model = embedding_model
+
+    def score(self, left_text: str, right_text: str) -> float:
+        vectors = self._embedding_model.embed_texts([left_text, right_text])
+        return cosine_similarity(vectors[0], vectors[1])
+
+    def rank(self, query: str, candidates: list[str]):
+        scores = [RankedText(candidate, self.score(query, candidate)) for candidate in candidates]
+        return sorted(scores, key=lambda x: x.score, reverse=True)
+```
+
+练习测试段：
+
+```python
+def test_positive_text_scores_higher_than_negative_text(self) -> None:
+    for case in self.cases:
+        with self.subTest(case=case["id"]):
+            positive_score = self.similarity.score(case["query"], case["positive"])
+            negative_score = self.similarity.score(case["query"], case["negative"])
+
+            self.assertGreater(positive_score, negative_score)
+
+
+def test_rank_returns_most_similar_text_first(self) -> None:
+    case = self.cases[0]
+
+    ranked = self.similarity.rank(
+        case["query"],
+        [
+            case["negative"],
+            case["positive"],
+        ],
+    )
+
+    self.assertEqual(ranked[0].text, case["positive"])
+    self.assertGreater(ranked[0].score, ranked[1].score)
+```
+
+验证：
+
+```text
+PYTHONPATH=src python3 -m unittest discover -s tests
+Ran 12 tests in 0.001s
+OK
+```
+
 ## 关键代码
 
 ```python
@@ -701,6 +983,7 @@ embedding_matrix.shape == (vocab_size, hidden_size)
 token_vector = embedding_matrix[token_id]
 sequence_vectors = embedding_matrix[token_ids]
 batch_vectors = [embedding_matrix[token_ids] for token_ids in batch_token_ids]
+text_score = cosine_similarity(query_embedding, candidate_embedding)
 ```
 
 ## 踩坑
@@ -718,6 +1001,8 @@ batch_vectors = [embedding_matrix[token_ids] for token_ids in batch_token_ids]
 - 不要以为推理阶段会继续修改模型权重；普通推理只使用固定参数做前向计算和采样。
 - 不要把 embedding 参数理解成数据质量；数据质量来自训练语料，并影响所有参数。
 - 不要把“模型更大通常更强”理解成绝对规律；训练不足或数据差的大模型可能不如训练好的小模型。
+- 不要默认 L2 更精准；如果语义主要编码在向量方向里，L2 可能被向量长度干扰。
+- 不要把真实 embedding backend 和相似度排序逻辑绑死；先用固定 fake vectors 验证排序规则更清晰。
 
 ## 复盘
 
@@ -736,5 +1021,5 @@ token id
 
 ## 下一步
 
-1. 用一个真实 embedding 模型计算几组文本向量，观察相似度。
+1. 接入一个真实 embedding 模型，替换 fake embedding backend，观察同一批测试文本的相似度。
 2. 后续在训练章节系统学习 loss、gradient、backprop、optimizer。
