@@ -48,6 +48,7 @@ token id -> dense vector
 ## 核心概念
 
 - Token id 本身没有语义，需要通过 embedding 转成向量。
+- Token id 是 tokenizer、embedding、Transformer 和输出层之间的统一索引。
 - 相似语义通常会在向量空间中距离更近。
 - LLM 内部使用 token embedding，RAG 常用 text embedding。
 - Embedding 是训练出来的，不是人工规则。
@@ -55,6 +56,61 @@ token id -> dense vector
 - `hidden_size` 可以理解为每个 token 向量的维度，例如 4096 维。
 - 单个维度通常不是人类可读的“高度、长度、颜色”等属性，而是模型训练出的内部坐标轴。
 - 维度越高，模型容量通常越大，但计算、显存和训练数据需求也更高。
+
+## 为什么模型内部使用 token id？
+
+Token 字符串主要用于 encode 和 decode：
+
+```text
+encode：文本 token -> token id
+decode：token id -> 文本 token
+```
+
+一旦进入模型内部，系统主要使用 token id 和向量：
+
+```text
+文本
+-> tokenizer encode
+-> token ids
+-> embedding lookup
+-> Transformer
+-> logits over vocab
+-> 采样 token id
+-> tokenizer decode
+-> 文本
+```
+
+原因是：
+
+- 模型只能做数值计算，字符串 token 不能直接参与矩阵乘法。
+- `token_id` 可以高效索引 embedding matrix，例如 `embedding_matrix[token_id]`。
+- 输出层 logits 的每个位置也对应一个 token id，例如 `logits[123]` 表示 token id 123 的分数。
+
+因此 `vocab` 是共同协议：
+
+```text
+token string <-> token id
+```
+
+可以这样区分：
+
+```text
+token 字符串：给人看，负责文本边界
+token id：给系统用，负责跨模块索引
+embedding 向量：给模型算，负责数值表示
+```
+
+Token id 本身仍然没有语义，它只是索引。语义来自：
+
+```text
+token_id 对应的 embedding 行向量
++
+Transformer 在上下文里的计算
++
+训练过程中学到的参数
+```
+
+这也是为什么模型不能随便换 tokenizer。如果 token id 重新编号，embedding matrix 和输出层 logits 对应的含义都会错位。
 
 ## 4096 维怎么理解？
 
@@ -368,6 +424,7 @@ Transformer 根据上下文把基础坐标加工成上下文语义
 本轮完成的理解：
 
 - Embedding 不是 tokenizer 做的；tokenizer 只负责文本和 token id 的转换。
+- Token id 是贯穿 tokenizer、embedding、Transformer、输出层和 decode 的统一索引。
 - Embedding 层负责把 token id 转成向量。
 - 4096 维可以理解为一个 4096 维高维坐标，但单个维度通常不可读。
 - Embedding matrix 本身是二维矩阵，形状是 `[vocab_size, hidden_size]`。
@@ -391,17 +448,73 @@ vectors = embedding_matrix[token_ids]
 output = transformer(vectors)
 ```
 
+### 2026-05-18：最小 embedding lookup 练习
+
+本轮完成的理解：
+
+- 纯 lookup 视角下，embedding 的实现就是多级索引。
+- 一个 token id 索引 embedding matrix 的一整行，得到 `[hidden_size]`。
+- 一句话是一组 token id，逐个查表后得到 `[seq_len, hidden_size]`。
+- 一个 batch 是多句话，逐句查表后得到 `[batch_size, seq_len, hidden_size]`。
+- 这个练习的关键不是算法复杂度，而是区分矩阵 shape、向量维度、序列长度和 batch 维度。
+
+练习代码段：
+
+```python
+class SimpleEmbedding:
+    def __init__(self, embedding_matrix: list[list[float]]) -> None:
+        self._embedding_matrix = embedding_matrix
+
+    def lookup_one(self, token_id: int) -> list[float]:
+        if token_id < 0:
+            raise ValueError(f"invalid token id: {token_id}")
+
+        try:
+            return self._embedding_matrix[token_id]
+        except IndexError:
+            raise ValueError(f"invalid token id: {token_id}") from None
+
+    def lookup_sequence(self, token_ids: list[int]) -> list[list[float]]:
+        return [self.lookup_one(token_id) for token_id in token_ids]
+
+    def lookup_batch(self, batch_token_ids: list[list[int]]) -> list[list[list[float]]]:
+        return [self.lookup_sequence(token_ids) for token_ids in batch_token_ids]
+```
+
+练习测试段：
+
+```python
+def test_lookup_batch_returns_batch_by_seq_len_by_hidden_size(self) -> None:
+    self.assertEqual(
+        self.embedding.lookup_batch([[0, 2], [1, 0]]),
+        [
+            [[0.1, 0.2], [0.5, 0.6]],
+            [[0.3, 0.4], [0.1, 0.2]],
+        ],
+    )
+```
+
+验证：
+
+```text
+PYTHONPATH=src python3 -m unittest discover -s tests
+Ran 8 tests in 0.000s
+OK
+```
+
 ## 关键代码
 
 ```python
 embedding_matrix.shape == (vocab_size, hidden_size)
 token_vector = embedding_matrix[token_id]
 sequence_vectors = embedding_matrix[token_ids]
+batch_vectors = [embedding_matrix[token_ids] for token_ids in batch_token_ids]
 ```
 
 ## 踩坑
 
 - 不要把 token id 本身理解成语义；id 只是词表编号。
+- 不要把 token 字符串带入模型内部计算；模型内部需要的是 token id 和向量。
 - 不要把 embedding 的每一维强行解释成人类可命名属性；通常是模型内部学出来的混合特征。
 - 不要把 embedding matrix 的二维 shape 误解成二维语义空间；它是二维表，向量空间维度由列数 `hidden_size` 决定。
 - 不要把一个 token 对应到某个单元格；一个 token 对应的是 embedding matrix 里的一整行。
@@ -409,6 +522,7 @@ sequence_vectors = embedding_matrix[token_ids]
 - 不要以为 padding 是语义内容；它只是为了把不等长样本拼成规则张量，必须被 mask 掉。
 - 不要把 embedding lookup 理解成现场语义推理；它只是取出已经训练好的向量。
 - 不要把 embedding vector 和 hidden state 混为一谈；前者不看上下文，后者强依赖上下文。
+- 不要把 lookup 练习想复杂；它的本质是按 token id 对 embedding matrix 做一层、两层、三层索引。
 
 ## 复盘
 

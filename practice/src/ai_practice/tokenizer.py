@@ -16,9 +16,6 @@ class CharTokenizer:
         self._id_to_char = {index: char for index, char in enumerate(self._chars)}
         self.UNKNOWN_TOKEN = UNKNOWN_TOKEN
         self.UNKNOWN_TOKEN_ID = self._char_to_id[UNKNOWN_TOKEN]
-        print('chars', self._chars)
-        print('char_to_id', self._char_to_id)
-        print('id_to_char', self._id_to_char)
 
     @property
     def vocab_size(self) -> int:
