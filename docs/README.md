@@ -13,7 +13,6 @@ title: "AI 学习笔记"
 | --- | --- |
 | [Roadmap](./roadmap.md) | 学习路线、阶段目标、主题顺序 |
 | [Progress](./progress.md) | 学习记录、当前状态、下一步 |
-| [Practice](./practice/README.md) | 代码练习、运行方式、练习记录 |
 | [Sitemap](./sitemap.md) | 全部页面目录 |
 
 ## 学习阶段
@@ -38,4 +37,4 @@ title: "AI 学习笔记"
 
 ## 复习方式
 
-按 [Roadmap](./roadmap.md) 进入阶段页；阶段页记录主题状态，主题页记录理解、代码、问题和复盘。需要回看学习轨迹时看 [Progress](./progress.md)。
+按 [Roadmap](./roadmap.md) 进入阶段页；阶段页记录主题状态，主题页记录理解、代码、问题和复盘。练习代码只在整理后作为代码块进入主题笔记。需要回看学习轨迹时看 [Progress](./progress.md)。

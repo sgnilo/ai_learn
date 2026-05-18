@@ -29,4 +29,5 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - node_modules
+  - practice
   - vendor

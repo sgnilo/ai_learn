@@ -8,9 +8,6 @@
   url: /progress.html
 - title: Sitemap
   url: /sitemap.html
-- title: Practice
-  url: /practice/
-
 - group: Learning Phases
   items:
     - title: Phase 0 · LLM Worldview

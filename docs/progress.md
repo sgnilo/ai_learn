@@ -11,7 +11,7 @@ title: "Progress"
 | --- | --- |
 | Active phase | Phase 0：建立 AI / LLM 世界观 |
 | Active topics | Tokenizer, Embedding |
-| Practice repo | [practice](./practice/README.md) |
+| Practice policy | 练习代码不作为公开入口；整理后以代码块进入主题笔记 |
 | Next review | 对比真实 tokenizer 的中文、英文、代码切分；继续整理 Embedding 笔记 |
 
 ## Phase Status
@@ -28,5 +28,5 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
-| 2026-05-17 | Phase 0 / Tokenizer | 完成字符级 tokenizer 第一轮实践，理解 vocab、token id、encode/decode、OOV 和 `<unk>` | [Tokenizer](./phase-0-llm-worldview/01-tokenizer.md), [practice](./practice/README.md) | 清理练习代码后，对比真实 BPE tokenizer 的中文、英文、代码切分 |
+| 2026-05-17 | Phase 0 / Tokenizer | 完成字符级 tokenizer 第一轮实践，理解 vocab、token id、encode/decode、OOV 和 `<unk>` | [Tokenizer](./phase-0-llm-worldview/01-tokenizer.md) | 清理练习代码后，对比真实 BPE tokenizer 的中文、英文、代码切分 |
 | 2026-05-17 | Docs | 创建分阶段文档集合并迁入 `docs/` | [Roadmap](./roadmap.md), [Sitemap](./sitemap.md) | 继续按阶段维护主题笔记 |

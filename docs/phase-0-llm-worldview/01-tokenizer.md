@@ -538,11 +538,6 @@ Unigram：先给很多候选切法，再保留整体概率最好的那批子词
 
 ### 2026-05-17：字符级 tokenizer 与 `<unk>` 练习
 
-实践目录：
-
-- 代码：`practice/src/ai_practice/tokenizer.py`
-- 测试：`practice/tests/test_tokenizer.py`
-
 本轮完成的理解：
 
 - `vocab_size` 是 token 词表大小，不是语料长度。

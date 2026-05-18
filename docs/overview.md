@@ -10,7 +10,7 @@ title: "Overview"
 ## 文档定位
 
 - `docs/`：学习路线、阶段笔记、项目说明、资源索引和复盘沉淀。
-- `practice/`：代码练习、测试和 Python 工程配置。
+- `practice/`：内部练习目录，不作为站点入口；稳定例子整理后进入主题笔记代码块。
 - `docs/projects/`：项目型学习任务的目标、待完成事项和实践记录。
 - `docs/resources/`：课程、论文、工具和术语表。
 
@@ -29,8 +29,7 @@ title: "Overview"
 1. [Roadmap](./roadmap.md)：整体目标和阶段顺序。
 2. 阶段 `00-overview.md`：阶段目标、主题清单和当前进度。
 3. 具体主题笔记：理解、实践记录、代码片段和问题。
-4. [Practice](./practice/README.md)：代码练习。
-5. [Progress](./progress.md)：学习记录和下一步。
+4. [Progress](./progress.md)：学习记录和下一步。
 
 ## 笔记规范
 

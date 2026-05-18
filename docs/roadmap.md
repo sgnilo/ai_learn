@@ -42,7 +42,7 @@ AI Product Engineer
 
 ## 文档结构
 
-学习计划、知识沉淀、项目说明和资源索引统一放在 `docs/` 目录下；代码练习、测试和工程配置放在根目录的 `practice/` 目录下。
+学习计划、知识沉淀、项目说明和资源索引统一放在 `docs/` 目录下。代码练习放在根目录的 `practice/` 目录下，仅作为内部练习区；练习完成后，将稳定例子整理进对应主题笔记的代码块。
 
 ```text
 README.md
@@ -109,8 +109,6 @@ docs/
     merchant-copilot/
     qlora-domain-worker/
     eval-system/
-  practice/
-    README.md
   resources/
     books-and-courses.md
     papers.md
