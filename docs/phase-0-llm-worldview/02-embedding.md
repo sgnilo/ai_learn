@@ -460,6 +460,94 @@ LayerNorm 等其他参数
 
 因此，普通聊天不会改变模型权重。除非额外做 fine-tuning、在线训练或外部记忆系统。
 
+## 参数规模、数据质量和能力上限
+
+Embedding 参数不等于数据质量。数据质量来自训练语料本身，训练数据会同时塑造 embedding matrix 和 Transformer 参数。
+
+更准确地说：
+
+```text
+embedding 参数：影响 token 的基础表示能力
+Transformer 参数：影响模型对上下文进行计算、组合、推理、预测的能力
+数据质量：影响所有参数最终学成什么样
+```
+
+Embedding matrix 参数量：
+
+```text
+embedding_params = vocab_size * hidden_size
+```
+
+如果输出层 `LM head` 不和 embedding 共享权重，还会有：
+
+```text
+lm_head_params = hidden_size * vocab_size
+```
+
+Transformer 参数量主要来自每层里的 attention 和 MLP / FFN 大矩阵，粗略和这些因素相关：
+
+```text
+num_layers
+hidden_size^2
+intermediate_size
+attention heads
+```
+
+因此：
+
+```text
+embedding 参数随 hidden_size 线性增长
+Transformer 参数通常随 hidden_size 接近平方级增长，并且还乘以层数
+```
+
+这也是为什么模型越大，参数大头通常在 Transformer layers 里，而不是 embedding 表里。
+
+常见关系：
+
+```text
+attention_heads * head_dim = hidden_size
+intermediate_size ≈ 3x~5x hidden_size
+```
+
+模型规模越大，通常会同时增加：
+
+```text
+hidden_size
+num_layers
+attention heads
+intermediate_size
+```
+
+更大的模型通常有更高能力上限：
+
+```text
+参数量更大
+-> 表示容量更强
+-> 能压缩和建模更多模式
+-> 能处理更复杂关系
+-> 通常能力更强、更全面
+```
+
+但这不是无条件成立。最终效果还取决于：
+
+```text
+数据质量
+训练 token 数
+训练策略
+模型架构
+后训练 / SFT / RLHF / DPO
+推理策略
+任务类型
+```
+
+所以更准确的判断是：
+
+```text
+在训练充分、数据足够好、架构合理的前提下，更大模型通常有更高能力上限。
+```
+
+工程上也不会总选最大模型，因为参数量越大，显存、延迟、吞吐、部署和 fine-tuning 成本也越高。实际选型要看任务复杂度和成本边界。
+
 ## 已厘清问题
 
 - Embedding 维度代表什么：`hidden_size` 是每个 token 向量的长度，不是二维矩阵的空间维度。
@@ -470,6 +558,7 @@ LayerNorm 等其他参数
 - 语义如何融入 embedding：前向时只是查表，训练时通过 loss、反向传播和优化器逐步更新 embedding matrix。
 - LLM 训练主链路：tokenized 数据反复预测下一个 token，通过 loss 更新 embedding、Transformer 和输出层参数。
 - LLM 推理主链路：使用固定权重循环预测下一个 token，并追加回上下文，最后 decode 成文本。
+- 参数规模和能力关系：模型越大通常能力上限越高，但前提是数据、训练、架构和后训练也跟得上。
 
 ## 待学习问题
 
@@ -480,6 +569,7 @@ LayerNorm 等其他参数
 - loss、gradient、optimizer step 如何系统性串起来？
 - position embedding / positional encoding 如何给 token 向量加入位置信息？
 - autoregressive generation、sampling、temperature、top-p 如何影响生成结果？
+- scaling law 如何描述参数量、数据量和训练计算量之间的关系？
 
 ## 实践记录
 
@@ -585,6 +675,25 @@ inference:
 prompt tokens -> embedding -> transformer -> logits -> sample next token -> append -> repeat -> decode
 ```
 
+### 2026-05-18：参数规模和能力上限
+
+本轮完成的理解：
+
+- 几十亿、几百亿参数指的是模型所有可训练权重总数，包括 embedding、Transformer、输出层等。
+- Embedding 参数负责 token 的基础坐标表，不直接代表数据质量。
+- Transformer 参数负责上下文计算、组合、推理和预测，是大模型参数量的主要来源。
+- 数据质量会同时影响 embedding 和 Transformer 参数学成什么样。
+- 在训练充分、数据好、架构合理的前提下，更大模型通常能力上限更高。
+- 工程上还要考虑显存、延迟、吞吐和成本，不是所有任务都应该选最大模型。
+
+练习代码段：
+
+```text
+embedding_params = vocab_size * hidden_size
+lm_head_params = hidden_size * vocab_size
+transformer_params ≈ num_layers * hidden_size^2 * constants
+```
+
 ## 关键代码
 
 ```python
@@ -607,12 +716,25 @@ batch_vectors = [embedding_matrix[token_ids] for token_ids in batch_token_ids]
 - 不要把 embedding vector 和 hidden state 混为一谈；前者不看上下文，后者强依赖上下文。
 - 不要把 lookup 练习想复杂；它的本质是按 token id 对 embedding matrix 做一层、两层、三层索引。
 - 不要以为推理阶段会继续修改模型权重；普通推理只使用固定参数做前向计算和采样。
+- 不要把 embedding 参数理解成数据质量；数据质量来自训练语料，并影响所有参数。
+- 不要把“模型更大通常更强”理解成绝对规律；训练不足或数据差的大模型可能不如训练好的小模型。
 
 ## 复盘
 
 Embedding 是 tokenizer 和 Transformer 之间的桥。Tokenizer 把文本变成离散 id，embedding 把离散 id 变成连续向量，Transformer 后续所有计算都建立在这些向量表示上。
 
+这一章目前已经串起了：
+
+```text
+token id
+-> embedding lookup
+-> batch tensor
+-> Transformer 输入
+-> 训练时更新参数
+-> 推理时固定参数逐 token 生成
+```
+
 ## 下一步
 
-1. 做一个最小 embedding lookup 练习：手写二维 embedding matrix，根据 token ids 取出 `[seq_len, hidden_size]` 和 `[batch_size, seq_len, hidden_size]`。
-2. 再用一个真实 embedding 模型计算几组文本向量，观察相似度。
+1. 用一个真实 embedding 模型计算几组文本向量，观察相似度。
+2. 后续在训练章节系统学习 loss、gradient、backprop、optimizer。
