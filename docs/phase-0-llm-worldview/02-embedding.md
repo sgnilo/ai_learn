@@ -399,6 +399,67 @@ Transformer 根据上下文把基础坐标加工成上下文语义
 训练过程把这种能力写进 embedding 和 Transformer 参数里
 ```
 
+## 训练和推理的主链路
+
+可以把 LLM 的训练和推理拆成两条链路。
+
+训练阶段：
+
+```text
+训练语料
+-> tokenizer
+-> token ids
+-> embedding lookup
+-> Transformer forward
+-> 预测下一个 token
+-> 和真实下一个 token 对比
+-> 计算 loss
+-> 反向传播
+-> 更新 embedding matrix + Transformer 参数 + 输出层参数
+-> 重复很多次
+```
+
+训练目标可以先理解为：
+
+```text
+让模型在大量上下文里更容易预测正确的下一个 token
+```
+
+训练结束后，固化下来的是一组模型权重：
+
+```text
+embedding matrix
+Transformer layers
+LM head / output projection
+LayerNorm 等其他参数
+```
+
+推理阶段：
+
+```text
+用户输入
+-> tokenizer
+-> token ids
+-> embedding lookup
+-> Transformer forward
+-> logits
+-> 选择或采样下一个 token id
+-> 把新 token id 追加到上下文
+-> 再预测下一个 token
+-> 循环直到停止
+-> tokenizer.decode
+-> 文本回答
+```
+
+关键区别：
+
+```text
+训练时：参数会被更新
+推理时：参数固定，只做计算和采样
+```
+
+因此，普通聊天不会改变模型权重。除非额外做 fine-tuning、在线训练或外部记忆系统。
+
 ## 已厘清问题
 
 - Embedding 维度代表什么：`hidden_size` 是每个 token 向量的长度，不是二维矩阵的空间维度。
@@ -407,6 +468,8 @@ Transformer 根据上下文把基础坐标加工成上下文语义
 - 为什么要 padding：为了把不等长样本拼成规则张量，方便 GPU 并行计算；padding 本身需要被 mask 掉。
 - Embedding vector 和 hidden state 的区别：前者是 token 的静态初始表示，后者是 Transformer 结合上下文后的动态表示。
 - 语义如何融入 embedding：前向时只是查表，训练时通过 loss、反向传播和优化器逐步更新 embedding matrix。
+- LLM 训练主链路：tokenized 数据反复预测下一个 token，通过 loss 更新 embedding、Transformer 和输出层参数。
+- LLM 推理主链路：使用固定权重循环预测下一个 token，并追加回上下文，最后 decode 成文本。
 
 ## 待学习问题
 
@@ -416,6 +479,7 @@ Transformer 根据上下文把基础坐标加工成上下文语义
 - 反向传播如何知道应该更新哪些参数、往哪个方向更新？
 - loss、gradient、optimizer step 如何系统性串起来？
 - position embedding / positional encoding 如何给 token 向量加入位置信息？
+- autoregressive generation、sampling、temperature、top-p 如何影响生成结果？
 
 ## 实践记录
 
@@ -502,6 +566,25 @@ Ran 8 tests in 0.000s
 OK
 ```
 
+### 2026-05-18：训练和推理主链路
+
+本轮完成的理解：
+
+- 模型训练不是只训练 embedding，而是同时更新 embedding matrix、Transformer block、输出层等参数。
+- 训练 loop 可以理解为：预测下一个 token、计算 loss、反向传播、优化参数、重复很多次。
+- 推理时参数固定，不再更新，只使用训练好的权重做前向计算。
+- 生成式 LLM 通常一次预测一个 token，把新 token 追加回上下文，再继续预测下一个 token。
+
+练习代码段：
+
+```text
+training:
+tokens -> embedding -> transformer -> logits -> loss -> backprop -> update weights
+
+inference:
+prompt tokens -> embedding -> transformer -> logits -> sample next token -> append -> repeat -> decode
+```
+
 ## 关键代码
 
 ```python
@@ -523,6 +606,7 @@ batch_vectors = [embedding_matrix[token_ids] for token_ids in batch_token_ids]
 - 不要把 embedding lookup 理解成现场语义推理；它只是取出已经训练好的向量。
 - 不要把 embedding vector 和 hidden state 混为一谈；前者不看上下文，后者强依赖上下文。
 - 不要把 lookup 练习想复杂；它的本质是按 token id 对 embedding matrix 做一层、两层、三层索引。
+- 不要以为推理阶段会继续修改模型权重；普通推理只使用固定参数做前向计算和采样。
 
 ## 复盘
 
