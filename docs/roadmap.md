@@ -3,11 +3,11 @@ layout: default
 title: "AI 学习路线 Roadmap"
 ---
 
-# AI 学习路线 Roadmap
+# Roadmap
 
-返回：[Docs 首页](./README.md) / [Overview](./overview.md) / [Sitemap](./sitemap.md)
+返回：[首页](./README.md) / [Progress](./progress.md) / [Sitemap](./sitemap.md)
 
-本项目用于沉淀从前端工程师转向 AI-native 产品、Agent 系统与模型训练方向的系统学习笔记。文档按学习路线分篇维护，后续学习时每个主题都可以逐步补充理解、实践记录、代码实验、踩坑和复盘。
+从前端工程转向 AI 产品、Agent 系统与模型训练的学习路线。每个主题单独维护笔记，学习过程记录在 [Progress](./progress.md)。
 
 原始路线来源：[ChatGPT 共享路线](https://chatgpt.com/share/6a0972b0-4854-839a-9c2b-ef2c0d8f1de0)
 
@@ -296,9 +296,9 @@ Unsloth + QLoRA
 
 当前建议：这一阶段不是现在的最高优先级。更现实的策略是先把 AI workflow 产品、agent 系统、本地模型和 QLoRA 微调跑通。
 
-## 学习记录规范
+## 笔记结构
 
-每篇笔记建议保持固定结构：
+主题笔记保持固定结构：
 
 ```text
 # 标题
@@ -349,12 +349,4 @@ QLoRA 微调
 Eval
 ```
 
-## 进度记录
-
-| 日期 | 阶段 | 学习内容 | 产出 | 下一步 |
-| --- | --- | --- | --- | --- |
-| 2026-05-17 | Phase 0 / Tokenizer | 完成字符级 tokenizer 第一轮实践，理解 vocab、token id、encode/decode、OOV 和 `<unk>` | docs/phase-0-llm-worldview/01-tokenizer.md、practice/src/ai_practice/tokenizer.py、practice/tests/test_tokenizer.py | 清理练习代码后，对比真实 BPE tokenizer 的中文、英文、代码切分 |
-| 2026-05-17 | 总路线 | 创建学习路线总目录 | docs/README.md | 创建 Phase 0 目录与第一篇 tokenizer 笔记 |
-| 2026-05-17 | 文档初始化 | 按路线创建分阶段文档集合 | docs/phase-*、docs/projects、docs/resources | 从 Phase 0 的 tokenizer 开始学习 |
-| 2026-05-17 | 目录治理 | 将学习文档统一迁入 docs | docs/、practice/ | 继续保持文档与练习代码分离 |
-| 2026-05-17 | 文档站点入口 | 增加 docs 首页、overview、roadmap 和 sitemap | docs/README.md、docs/overview.md、docs/roadmap.md、docs/sitemap.md | 后续部署到 GitHub Pages 作为复习入口 |
+进度记录维护在 [Progress](./progress.md)。

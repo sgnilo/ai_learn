@@ -7,9 +7,10 @@ title: "Sitemap"
 
 ## Docs Home
 
-- [Docs 首页](./README.md)
+- [Home](./README.md)
 - [Overview](./overview.md)
 - [Roadmap](./roadmap.md)
+- [Progress](./progress.md)
 - [Practice](./practice/README.md)
 
 ## Phase 0：建立 AI / LLM 世界观

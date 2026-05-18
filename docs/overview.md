@@ -5,7 +5,7 @@ title: "Overview"
 
 # Overview
 
-这套文档用于沉淀从前端工程师转向 AI-native 产品、Agent 系统、模型训练与 AI 系统工程的学习计划和知识点。
+这套文档记录从前端工程转向 AI 产品、Agent 系统、模型训练与 AI 系统工程的学习过程。
 
 ## 文档定位
 
@@ -14,7 +14,7 @@ title: "Overview"
 - `docs/projects/`：项目型学习任务的目标、待完成事项和实践记录。
 - `docs/resources/`：课程、论文、工具和术语表。
 
-## 当前主线
+## 主线
 
 当前优先级是先形成能落地的 AI 工程能力：
 
@@ -24,19 +24,17 @@ title: "Overview"
 4. Phase 3：逐步补齐 eval、serving、memory、retrieval 和 agent orchestration。
 5. Phase 4：作为研究方向储备，不作为当前最高优先级。
 
-## 阅读方式
+## 阅读顺序
 
-面向复习时，建议按这个顺序阅读：
-
-1. [Roadmap](./roadmap.md)：确认整体目标和阶段顺序。
-2. 阶段 `00-overview.md`：确认阶段目标、主题清单和当前进度。
-3. 具体主题笔记：补充理解、实践记录、代码片段和踩坑。
-4. [Practice](./practice/README.md)：用代码练习巩固概念。
-5. [Sitemap](./sitemap.md)：按目录快速定位文档。
+1. [Roadmap](./roadmap.md)：整体目标和阶段顺序。
+2. 阶段 `00-overview.md`：阶段目标、主题清单和当前进度。
+3. 具体主题笔记：理解、实践记录、代码片段和问题。
+4. [Practice](./practice/README.md)：代码练习。
+5. [Progress](./progress.md)：学习记录和下一步。
 
 ## 笔记规范
 
-每篇主题笔记建议保持固定结构：
+主题笔记保持固定结构：
 
 ```text
 # 标题
@@ -55,7 +53,3 @@ title: "Overview"
 
 ## 下一步
 ```
-
-## GitHub Pages 准备
-
-这个目录按静态 Markdown 文档站点组织。`index.md` 作为 GitHub Pages 首页，`README.md` 作为仓库浏览入口，`roadmap.md` 作为完整路线，`sitemap.md` 作为目录索引。后续如果接入 MkDocs、Docsify 或 Docusaurus，目录结构不需要大改。

@@ -1,7 +1,7 @@
 :root {
-  --bg: #f7f7f4;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-soft: #f1f5f2;
+  --surface-soft: #f5f7f6;
   --ink: #18211f;
   --muted: #65706b;
   --line: #dfe5df;
@@ -9,9 +9,8 @@
   --accent-strong: #0b5f59;
   --warm: #b75f2a;
   --code-bg: #101817;
-  --shadow: 0 1px 2px rgba(24, 33, 31, 0.06), 0 8px 24px rgba(24, 33, 31, 0.05);
   --radius: 8px;
-  --content-width: 920px;
+  --content-width: 980px;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -192,16 +191,12 @@ a:hover {
 
 .content {
   width: min(100%, calc(var(--content-width) + 64px));
-  margin: 0 auto;
-  padding: 46px 32px 72px;
+  margin: 0;
+  padding: 42px 48px 72px;
 }
 
 .doc-card {
-  padding: 52px 58px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  padding: 0;
   contain: paint;
 }
 
@@ -357,7 +352,7 @@ img {
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: var(--surface);
-    box-shadow: var(--shadow);
+    box-shadow: 0 1px 2px rgba(24, 33, 31, 0.06), 0 8px 24px rgba(24, 33, 31, 0.05);
   }
 
   .content {
@@ -365,7 +360,7 @@ img {
   }
 
   .doc-card {
-    padding: 30px 20px;
+    padding: 0;
   }
 
   h1 {
