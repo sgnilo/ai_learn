@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Learn Note Commit"
+  short_description: "Summarize learning conversations into docs and commit changes."
+  default_prompt: "Use this skill to update AI Learn notes from the current conversation, verify the repository, and create a local commit."

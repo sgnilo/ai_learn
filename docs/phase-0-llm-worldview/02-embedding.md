@@ -283,6 +283,66 @@ embedding training：通过语言模型训练，让这些向量逐渐有用
 
 不要理解成 vocab 一生成，embedding 空间就自然有语义。语义关系是在训练过程中被塑造出来的。
 
+前向计算时，embedding 层本身只是查表：
+
+```text
+token id
+-> embedding_matrix[token_id]
+-> token vector
+```
+
+它不是在这一刻现场“理解语义”。语义是在训练循环中逐步写入 embedding matrix 的：
+
+```text
+文本
+-> tokenizer
+-> token ids
+-> embedding lookup
+-> token vectors
+-> Transformer 结合上下文重新加工
+-> hidden states
+-> LM head
+-> logits
+-> 预测下一个 token
+-> loss
+-> 反向传播更新 embedding + Transformer 参数
+```
+
+例如 `cat` 和 `dog` 经常出现在类似上下文里：
+
+```text
+The cat eats ...
+The dog eats ...
+I have a cat
+I have a dog
+```
+
+模型不是被人工告知 `cat` 和 `dog` 都是动物，而是在大量预测任务里发现它们在上下文中的行为相似。为了降低预测错误，训练会逐步调整相关参数，包括 `cat`、`dog` 对应的 embedding 行向量。
+
+还要区分：
+
+```text
+embedding vector：某个 token 的初始静态表示
+hidden state：这个 token 在当前上下文中的动态表示
+```
+
+例如同一个 `bank`：
+
+```text
+river bank
+bank account
+```
+
+Embedding lookup 查出的 `bank` 初始向量是一样的；进入 Transformer 后，因为上下文不同，它的 hidden state 会变成不同的上下文表示。
+
+所以：
+
+```text
+Embedding 层提供 token 的基础坐标
+Transformer 根据上下文把基础坐标加工成上下文语义
+训练过程把这种能力写进 embedding 和 Transformer 参数里
+```
+
 ## 待学习问题
 
 - Token embedding 和 text embedding 有什么区别？
@@ -291,6 +351,7 @@ embedding training：通过语言模型训练，让这些向量逐渐有用
 - cosine similarity、dot product、L2 distance 的使用场景是什么？
 - 矩阵、向量、张量在模型输入输出里分别对应什么？
 - embedding matrix 和 Transformer 内部 hidden states 有什么关系？
+- 反向传播如何知道应该更新哪些参数、往哪个方向更新？
 
 ## 实践记录
 
@@ -309,6 +370,8 @@ embedding training：通过语言模型训练，让这些向量逐渐有用
 - 不同长度的句子会 padding 到同一个 `max_seq_len`，得到规则张量，方便 GPU 并行计算。
 - Padding 填充值本身不应该影响结果，需要通过 attention mask 和 loss mask 屏蔽。
 - Embedding 向量通常随机初始化，然后随着语言模型训练被更新。
+- 前向计算时 embedding 只是查表；语义是在训练中通过 loss 和反向传播逐步写入 embedding matrix 的。
+- Embedding vector 是 token 的静态初始表示，Transformer hidden state 是结合上下文后的动态表示。
 
 练习代码段：
 
@@ -336,6 +399,8 @@ sequence_vectors = embedding_matrix[token_ids]
 - 不要把一个 token 对应到某个单元格；一个 token 对应的是 embedding matrix 里的一整行。
 - 不要把 embedding matrix 和一次输入得到的 embedding tensor 混在一起：前者通常二维，后者带 batch 时通常三维。
 - 不要以为 padding 是语义内容；它只是为了把不等长样本拼成规则张量，必须被 mask 掉。
+- 不要把 embedding lookup 理解成现场语义推理；它只是取出已经训练好的向量。
+- 不要把 embedding vector 和 hidden state 混为一谈；前者不看上下文，后者强依赖上下文。
 
 ## 复盘
 
