@@ -343,15 +343,23 @@ Transformer 根据上下文把基础坐标加工成上下文语义
 训练过程把这种能力写进 embedding 和 Transformer 参数里
 ```
 
+## 已厘清问题
+
+- Embedding 维度代表什么：`hidden_size` 是每个 token 向量的长度，不是二维矩阵的空间维度。
+- Embedding matrix 是什么：它是 `[vocab_size, hidden_size]` 的二维表，每行是一个 token 的完整向量。
+- 矩阵、向量、张量在这里怎么对应：一个 token 是向量，一句话是 `[seq_len, hidden_size]`，一批句子是 `[batch_size, seq_len, hidden_size]`。
+- 为什么要 padding：为了把不等长样本拼成规则张量，方便 GPU 并行计算；padding 本身需要被 mask 掉。
+- Embedding vector 和 hidden state 的区别：前者是 token 的静态初始表示，后者是 Transformer 结合上下文后的动态表示。
+- 语义如何融入 embedding：前向时只是查表，训练时通过 loss、反向传播和优化器逐步更新 embedding matrix。
+
 ## 待学习问题
 
 - Token embedding 和 text embedding 有什么区别？
-- Embedding 维度代表什么？
 - 为什么向量相似度可以用于语义检索？
 - cosine similarity、dot product、L2 distance 的使用场景是什么？
-- 矩阵、向量、张量在模型输入输出里分别对应什么？
-- embedding matrix 和 Transformer 内部 hidden states 有什么关系？
 - 反向传播如何知道应该更新哪些参数、往哪个方向更新？
+- loss、gradient、optimizer step 如何系统性串起来？
+- position embedding / positional encoding 如何给 token 向量加入位置信息？
 
 ## 实践记录
 
@@ -408,4 +416,5 @@ Embedding 是 tokenizer 和 Transformer 之间的桥。Tokenizer 把文本变成
 
 ## 下一步
 
-用一个 embedding 模型计算几组文本向量，观察相似度。
+1. 做一个最小 embedding lookup 练习：手写二维 embedding matrix，根据 token ids 取出 `[seq_len, hidden_size]` 和 `[batch_size, seq_len, hidden_size]`。
+2. 再用一个真实 embedding 模型计算几组文本向量，观察相似度。
