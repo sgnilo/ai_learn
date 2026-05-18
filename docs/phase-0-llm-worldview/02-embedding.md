@@ -179,6 +179,75 @@ embedding matrix 本身是二维矩阵
 
 所以“矩阵一般是二维的”这个印象是对的；深度学习里经常还会用到更高维的数据结构，通常叫 tensor，中文叫张量。
 
+## 为什么要 padding 成相同形状？
+
+一批句子的 token 数通常不一样：
+
+```text
+句子 A：3 tokens
+句子 B：7 tokens
+句子 C：5 tokens
+```
+
+embedding 后分别是：
+
+```text
+[3, 4096]
+[7, 4096]
+[5, 4096]
+```
+
+这些长度不同的矩阵不能直接堆成一个规则 batch。GPU 和深度学习框架最擅长处理规则形状的大块数字数组，所以通常会把同一批样本 padding 到相同长度：
+
+```text
+句子 A：3 -> 7
+句子 B：7 -> 7
+句子 C：5 -> 7
+```
+
+得到：
+
+```text
+[batch_size, max_seq_len, hidden_size]
+= [3, 7, 4096]
+```
+
+这个张量就是 Transformer 的输入表示之一。它会继续经过：
+
+```text
+embedding tensor
+-> attention
+-> feed-forward network
+-> 多层 Transformer block
+-> logits
+-> 下一个 token 概率
+```
+
+常见形状变化：
+
+```text
+token ids
+[batch_size, seq_len]
+
+-> embedding
+[batch_size, seq_len, hidden_size]
+
+-> Transformer
+[batch_size, seq_len, hidden_size]
+
+-> LM head / output projection
+[batch_size, seq_len, vocab_size]
+```
+
+Padding 的目的不是增加语义，而是方便并行计算。填充值本身不应该影响模型结果，所以还会配合 attention mask：
+
+```text
+1 = 真实 token
+0 = padding token
+```
+
+模型通过 attention mask 知道哪些位置是真实内容，哪些位置只是补齐用的 `<pad>`。理想情况下，padding 位置不会作为真实语义参与 attention 和 loss 计算。
+
 ## Embedding 是如何学出来的？
 
 Tokenizer/vocab 只定义：
@@ -237,6 +306,8 @@ embedding training：通过语言模型训练，让这些向量逐渐有用
 - `[50000, 4096]` 不是二维语义空间，而是 50000 个 token 向量，每个向量有 4096 维。
 - 输入序列查表后的结果是 `[seq_len, hidden_size]`。
 - 带 batch 时，结果通常是 `[batch_size, seq_len, hidden_size]`，这是三维张量。
+- 不同长度的句子会 padding 到同一个 `max_seq_len`，得到规则张量，方便 GPU 并行计算。
+- Padding 填充值本身不应该影响结果，需要通过 attention mask 和 loss mask 屏蔽。
 - Embedding 向量通常随机初始化，然后随着语言模型训练被更新。
 
 练习代码段：
@@ -264,6 +335,7 @@ sequence_vectors = embedding_matrix[token_ids]
 - 不要把 embedding matrix 的二维 shape 误解成二维语义空间；它是二维表，向量空间维度由列数 `hidden_size` 决定。
 - 不要把一个 token 对应到某个单元格；一个 token 对应的是 embedding matrix 里的一整行。
 - 不要把 embedding matrix 和一次输入得到的 embedding tensor 混在一起：前者通常二维，后者带 batch 时通常三维。
+- 不要以为 padding 是语义内容；它只是为了把不等长样本拼成规则张量，必须被 mask 掉。
 
 ## 复盘
 
