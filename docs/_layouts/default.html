@@ -26,7 +26,14 @@
               <div class="nav-group">
                 <p>{{ entry.group }}</p>
                 {% for item in entry.items %}
-                  <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                  <a class="nav-parent" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                  {% if item.children %}
+                    <div class="nav-children" aria-label="{{ item.title }} pages">
+                      {% for child in item.children %}
+                        <a href="{{ child.url | relative_url }}">{{ child.title }}</a>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 {% endfor %}
               </div>
             {% else %}
@@ -45,7 +52,14 @@
                 {% if entry.group %}
                   <p>{{ entry.group }}</p>
                   {% for item in entry.items %}
-                    <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                    <a class="nav-parent" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                    {% if item.children %}
+                      <div class="nav-children" aria-label="{{ item.title }} pages">
+                        {% for child in item.children %}
+                          <a href="{{ child.url | relative_url }}">{{ child.title }}</a>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
                   {% endfor %}
                 {% else %}
                   <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
