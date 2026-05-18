@@ -479,12 +479,60 @@ Unigram：先给很多候选切法，再保留整体概率最好的那批子词
 - `merges.txt`
 - `tokenizer_config.json`
 
+## 训练 tokenizer 是什么？
+
+生产里说“训练 tokenizer”，通常不是训练神经网络模型，而是基于语料学习一套文本切分规则和词表。
+
+更准确地说：
+
+```text
+训练 tokenizer
+= 给它一批文本语料
+= 让算法统计哪些字符、字节、子词片段经常一起出现
+= 生成 vocab、merge rules 或 token probability table
+```
+
+它的产物通常是：
+
+- `vocab.json`
+- `merges.txt`
+- `tokenizer.json`
+- `tokenizer.model`
+- `tokenizer_config.json`
+
+而不是：
+
+- `model.safetensors`
+- `pytorch_model.bin`
+- Transformer 参数
+
+可以这样区分：
+
+| 类型 | 训练对象 | 产物 |
+| --- | --- | --- |
+| tokenizer 训练 | 文本切分规则和词表 | vocab、merges、tokenizer config |
+| LLM 训练 | 模型参数 | neural network weights |
+| embedding 训练 | token id 对应的向量 | embedding matrix，属于模型权重 |
+
+完整关系：
+
+```text
+先确定或训练 tokenizer
+-> 得到固定 vocab
+-> 模型 embedding 层大小 = vocab_size
+-> 用这个 tokenizer 把训练语料转成 token ids
+-> 再训练 LLM
+```
+
+这也是为什么一个模型不能随便换 tokenizer：换了 tokenizer，token id 的含义就变了，embedding 和输出层也对不上。
+
 ## 待学习问题
 
 - BOS、EOS、PAD 等 special token 分别做什么？
 - truncation 和 padding 为什么会影响训练？
 - 中文、英文、代码在 tokenizer 上有什么差异？
 - 真实 byte-level BPE 如何避免大多数 OOV 问题？
+- Hugging Face `tokenizers` 训练出来的 `tokenizer.json` 具体包含哪些组件？
 
 ## 实践记录
 
@@ -625,3 +673,4 @@ decode 是把 token id 序列重新序列化为文本
 1. 清理当前 `CharTokenizer` 实现里的调试输出和无效异常处理。
 2. 使用 Hugging Face tokenizer 对中文、英文、代码分别编码，观察 token 切分结果。
 3. 对比字符级 tokenizer 和真实 BPE tokenizer 在同一句文本上的 token 数差异。
+4. 使用 Hugging Face `tokenizers` 基于内存文本训练一个小 BPE tokenizer，观察 vocab 和 merge 规则。
