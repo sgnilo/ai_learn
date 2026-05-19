@@ -47,6 +47,8 @@ Transformer block 的核心任务是：
 - Self-Attention
 - Q / K / V
 - Multi-Head Attention
+- Causal Mask
+- Decoder-only LLM
 - Positional Encoding / Position Embedding
 - Feed Forward Network
 - Residual Connection
@@ -234,6 +236,81 @@ Decoder-only LLM 训练和生成时通常只能看过去，不能看未来。
 ```
 
 而不是偷看未来答案。
+
+如果序列长度是 4，允许看到的位置是一个下三角矩阵：
+
+```text
+        看谁
+        0   1   2   3
+当前 0  ✓   x   x   x
+当前 1  ✓   ✓   x   x
+当前 2  ✓   ✓   ✓   x
+当前 3  ✓   ✓   ✓   ✓
+```
+
+实际做法通常是在 softmax 之前处理 attention score：
+
+```text
+scores = Q @ K^T / sqrt(d_k)
+scores[未来位置] = -inf
+weights = softmax(scores)
+out = weights @ V
+```
+
+因为 `softmax(-inf) = 0`，所以未来位置的 attention 权重会变成 0，不参与后面对 `V` 的加权求和。
+
+伪代码：
+
+```python
+scores = Q @ K.T / math.sqrt(d_k)
+mask = lower_triangular_matrix(seq_len)
+scores = scores.masked_fill(mask == 0, -float("inf"))
+weights = softmax(scores)
+out = weights @ V
+```
+
+## Decoder-only LLM
+
+Decoder-only LLM 指只使用 Transformer 的 decoder 风格结构，并通过自回归方式生成文本：
+
+```text
+给定前面的 token，预测下一个 token
+把预测结果拼回上下文
+继续预测下一个 token
+```
+
+例如：
+
+```text
+输入：今天天气
+预测：很
+输入：今天天气很
+预测：好
+```
+
+这里的核心约束就是 causal mask：当前位置只能看自己和之前的 token，不能看未来 token。
+
+基本流程：
+
+```text
+tokens
+-> embedding
+-> 多层 decoder Transformer block
+   -> masked self-attention / causal self-attention
+   -> FFN
+-> logits
+-> 预测下一个 token
+```
+
+和其他 Transformer 架构的区别：
+
+```text
+Encoder-only：双向看完整输入，适合理解、分类、检索，不天然适合长文本自回归生成
+Encoder-decoder：encoder 读输入，decoder 生成输出，常见于翻译、摘要、text-to-text
+Decoder-only：只用 decoder 风格堆叠，通过 causal mask 从左到右预测下一个 token
+```
+
+当前主流聊天和生成式 LLM 大多走 decoder-only 路线，例如 GPT、LLaMA、Mistral、Qwen、DeepSeek 等。
 
 ## Multi-Head Attention
 
@@ -811,6 +888,34 @@ self.layers = nn.ModuleList([
 循环：让 hidden states 逐层被 transform
 ```
 
+### 2026-05-19：Causal Mask 和 Decoder-only LLM
+
+本轮完成的理解：
+
+- Decoder-only LLM 是当前主流生成式大模型常见架构路线。
+- 它通过自回归方式工作：基于已有 token 预测下一个 token，再把预测 token 拼回上下文继续生成。
+- Causal mask 是 decoder-only LLM 的核心约束：当前位置只能看自己和之前的 token，不能偷看未来 token。
+- Causal mask 通常是下三角 mask，作用在 attention scores 上。
+- 实现时会在 softmax 前把未来位置的 score 设成 `-inf`，让这些位置经过 softmax 后权重变成 0。
+- Encoder-only 更偏理解任务；encoder-decoder 把输入理解和输出生成分成两套结构；decoder-only 用一套自回归生成结构同时承担理解和生成。
+
+练习代码段：
+
+```python
+scores = Q @ K.T / math.sqrt(d_k)
+mask = lower_triangular_matrix(seq_len)
+scores = scores.masked_fill(mask == 0, -float("inf"))
+weights = softmax(scores)
+out = weights @ V
+```
+
+下三角直觉：
+
+```text
+当前 token i 只能 attend 到位置 <= i 的 token
+未来位置 > i 的 attention weight = 0
+```
+
 ## 关键代码
 
 ```text
@@ -826,6 +931,8 @@ Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
 - 不要以为 Transformer block 会改变主张量 shape；通常每层输入输出都是 `[batch_size, seq_len, hidden_size]`。
 - 不要把 attention 矩阵理解成最终输出；它只是 token 之间的信息路由权重。
 - 不要以为不同训练样本会在 attention 里互相看到；它们只通过共享参数的训练更新产生间接联系。
+- 不要忘记 decoder-only LLM 的 self-attention 通常带 causal mask；否则训练时会偷看未来 token。
+- 不要把 decoder-only 理解成“只能解码不能理解”；它只是采用自回归 decoder 风格结构，仍然可以通过生成范式处理理解任务。
 - 不要把 residual 理解成“把结果替换原始数据”；它是在原表示上叠加新信息。
 - 不要把 residual 加法理解成参数相加；它加的是当前前向计算里的 hidden states / activation。
 - 不要把 shape 写法神秘化；`[batch_size, seq_len, hidden_size]` 就是三层数组/张量三个轴上的长度。
@@ -843,4 +950,4 @@ Transformer 可以先理解成一个上下文加工器。Embedding 提供每个 
 
 ## 下一步
 
-阅读 minGPT / nanoGPT 或 Hugging Face 模型里的 Transformer block 实现，对照类、实例、参数和 forward 循环。
+阅读 minGPT / nanoGPT 或 Hugging Face 模型里的 causal self-attention 实现，对照 mask、scores、softmax 和 forward 循环。

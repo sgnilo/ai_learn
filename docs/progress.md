@@ -12,13 +12,13 @@ title: "Progress"
 | Active phase | Phase 0：建立 AI / LLM 世界观 |
 | Active topics | Tokenizer, Embedding, Transformer |
 | Practice policy | 练习代码不作为公开入口；整理后以代码块进入主题笔记 |
-| Next review | 深入 activation：ReLU、GELU、SiLU、SwiGLU，以及它们在 FFN 里的门控作用 |
+| Next review | 阅读真实 causal self-attention 实现，对照 mask、scores、softmax 和 forward 循环 |
 
 ## Phase Status
 
 | Phase | Status | Notes |
 | --- | --- | --- |
-| [Phase 0](./phase-0-llm-worldview/00-overview.md) | In progress | Tokenizer 第一轮完成；Embedding 已完成 text similarity 练习；Transformer 已进入 FFN 升维与 activation |
+| [Phase 0](./phase-0-llm-worldview/00-overview.md) | In progress | Tokenizer 第一轮完成；Embedding 已完成 text similarity 练习；Transformer 已覆盖 block、FFN、activation、causal mask 和 decoder-only 路线 |
 | [Phase 1](./phase-1-ai-product-engineer/00-overview.md) | Not started | AI workflow 和 Agent 产品 |
 | [Phase 2](./phase-2-model-fine-tuning/00-overview.md) | Not started | QLoRA / SFT 微调 |
 | [Phase 3](./phase-3-ai-system-engineering/00-overview.md) | Not started | Eval、serving、memory、retrieval |
@@ -28,6 +28,7 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
+| 2026-05-19 | Phase 0 / Transformer | 记录 Causal Mask 的下三角实现，以及 decoder-only LLM 与 encoder-only、encoder-decoder 的区别 | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md) | 阅读真实 causal self-attention 实现 |
 | 2026-05-19 | Phase 0 / Transformer | 记录 FFN 升维、`W_up` 中间特征通道和 activation 非线性筛选机制 | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md) | 深入 ReLU、GELU、SiLU、SwiGLU |
 | 2026-05-19 | Phase 0 / Embedding Practice | 完成 text embedding 相似度练习，拆分 embedding backend、cosine 计算和候选排序逻辑 | [Embedding](./phase-0-llm-worldview/02-embedding.md), `practice/src/ai_practice/text_embedding.py` | 接入真实 embedding 模型观察相似度 |
 | 2026-05-18 | Phase 0 / Embedding | 记录 L2、cosine、dot product 的区别，以及 text embedding 常用 cosine/归一化点积的原因 | [Embedding](./phase-0-llm-worldview/02-embedding.md) | 完成 text embedding 相似度练习实现 |
