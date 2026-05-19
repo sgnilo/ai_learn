@@ -374,6 +374,50 @@ SiLU(x) = x * sigmoid(x)
 GELU：更平滑的 ReLU 风格激活
 ```
 
+### SiLU 如何做非线性加工？
+
+SiLU 也叫 Swish，公式是：
+
+```text
+SiLU(x) = x * sigmoid(x)
+sigmoid(x) = 1 / (1 + e^(-x))
+```
+
+它可以拆成两步看：
+
+```text
+gate = sigmoid(x)
+out = x * gate
+```
+
+`sigmoid(x)` 会把任意输入压到 `0 ~ 1` 之间：
+
+```text
+x 很大为正 -> sigmoid(x) 接近 1
+x 接近 0   -> sigmoid(x) 接近 0.5
+x 很大为负 -> sigmoid(x) 接近 0
+```
+
+所以 SiLU 的直觉是：先根据 `x` 自己算一个软门控比例，再用这个比例乘回 `x`。
+
+例如：
+
+```text
+x =  3.0 -> sigmoid(x) ≈ 0.95 -> SiLU(x) ≈  2.86
+x =  0.0 -> sigmoid(x) =  0.50 -> SiLU(x) =   0.0
+x = -1.0 -> sigmoid(x) ≈ 0.27 -> SiLU(x) ≈ -0.27
+x = -5.0 -> sigmoid(x) ≈ 0.01 -> SiLU(x) ≈ -0.03
+```
+
+这和 ReLU 的区别是：
+
+```text
+ReLU：负数直接砍成 0，正数原样通过
+SiLU：负数被平滑压低，正数被逐渐放行
+```
+
+因此 SiLU 是一个平滑的非线性函数。它既保留了“正响应更容易通过”的倾向，又不会像 ReLU 一样在 0 点突然硬切。
+
 直觉上，activation 像中间特征的阀门：
 
 ```text
@@ -634,6 +678,7 @@ output: [batch_size, seq_len, hidden_size]
 - 升维后的 `intermediate_size` 提供临时计算空间，不是最终输出维度。
 - Activation 作用在升维后的中间特征上，引入非线性选择机制。
 - ReLU / GELU / SiLU 可以先理解成不同风格的数值阀门。
+- SiLU 的核心是 `x * sigmoid(x)`：用输入自己生成软门控比例，再乘回输入本身。
 
 练习代码段：
 
@@ -644,6 +689,14 @@ h = x @ W_up
 h = activation(h)
 out = h @ W_down
 out: [hidden_size]
+```
+
+SiLU 数值例子：
+
+```text
+SiLU(3.0)  = 3.0  * sigmoid(3.0)  ≈  2.86
+SiLU(-1.0) = -1.0 * sigmoid(-1.0) ≈ -0.27
+SiLU(-5.0) = -5.0 * sigmoid(-5.0) ≈ -0.03
 ```
 
 ## 关键代码
