@@ -28,6 +28,7 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
+| 2026-05-19 | Phase 0 / Transformer Practice | 搭建 Causal Mask 练习测试，覆盖下三角 mask、masked scores、softmax、weighted sum 和 masked attention | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md), `practice/tests/test_causal_mask.py` | 实现 `practice/src/ai_practice/causal_mask.py` 到测试通过 |
 | 2026-05-19 | Phase 0 / Transformer | 记录 Causal Mask 的下三角实现，以及 decoder-only LLM 与 encoder-only、encoder-decoder 的区别 | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md) | 阅读真实 causal self-attention 实现 |
 | 2026-05-19 | Phase 0 / Transformer | 记录 FFN 升维、`W_up` 中间特征通道和 activation 非线性筛选机制 | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md) | 深入 ReLU、GELU、SiLU、SwiGLU |
 | 2026-05-19 | Phase 0 / Embedding Practice | 完成 text embedding 相似度练习，拆分 embedding backend、cosine 计算和候选排序逻辑 | [Embedding](./phase-0-llm-worldview/02-embedding.md), `practice/src/ai_practice/text_embedding.py` | 接入真实 embedding 模型观察相似度 |
