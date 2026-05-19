@@ -278,6 +278,128 @@ hidden_size -> intermediate_size -> hidden_size
 
 Attention 负责 token 之间交换信息；FFN 负责在每个 token 内部把特征表达加工得更丰富。
 
+更细地看，一个普通 FFN 可以写成：
+
+```text
+h = x @ W_up + b_up
+h = activation(h)
+out = h @ W_down + b_down
+```
+
+对应 shape：
+
+```text
+x: [hidden_size]
+W_up: [hidden_size, intermediate_size]
+h: [intermediate_size]
+W_down: [intermediate_size, hidden_size]
+out: [hidden_size]
+```
+
+如果带 batch 和 seq_len：
+
+```text
+x: [batch_size, seq_len, hidden_size]
+W_up: [hidden_size, intermediate_size]
+h: [batch_size, seq_len, intermediate_size]
+out: [batch_size, seq_len, hidden_size]
+```
+
+### 升维是怎么来的？
+
+升维不是枚举原特征之间的排列组合，而是通过一个可训练权重矩阵，把原 hidden vector 投影到更多中间特征通道。
+
+例如从 3 维升到 4 维：
+
+```text
+x = [x1, x2, x3]
+W_up shape = [3, 4]
+```
+
+矩阵可以写成：
+
+```text
+        h1   h2   h3   h4
+      ┌                    ┐
+x1 -> │ w11  w12  w13  w14 │
+x2 -> │ w21  w22  w23  w24 │
+x3 -> │ w31  w32  w33  w34 │
+      └                    ┘
+```
+
+计算：
+
+```text
+h1 = x1*w11 + x2*w21 + x3*w31
+h2 = x1*w12 + x2*w22 + x3*w32
+h3 = x1*w13 + x2*w23 + x3*w33
+h4 = x1*w14 + x2*w24 + x3*w34
+```
+
+因此，第 4 个新维度不是凭空来的，也不是 `x1` 和某个 `x4` 的组合。它由第 4 列权重定义：
+
+```text
+h4 = x1*w14 + x2*w24 + x3*w34
+```
+
+也就是说：
+
+```text
+W_up 的每一列 = 一组可训练权重 = 一个中间特征探测器
+```
+
+如果升到 5 维，就多一列：
+
+```text
+h5 = x1*w15 + x2*w25 + x3*w35
+```
+
+这些权重一开始通常随机初始化，训练时通过 loss 和反向传播更新。升维给模型更多“临时特征槽位”，让它可以学习更多组不同的加权组合特征。
+
+### Activation 是什么？
+
+如果只有线性层：
+
+```text
+Linear(Linear(Linear(x)))
+```
+
+整体仍然等价于一个大的线性变换，表达能力有限。Activation function 的作用是在两个线性层之间加入非线性。
+
+常见 activation：
+
+```text
+ReLU(x) = max(0, x)
+SiLU(x) = x * sigmoid(x)
+GELU：更平滑的 ReLU 风格激活
+```
+
+直觉上，activation 像中间特征的阀门：
+
+```text
+ReLU：硬阀门，负数关掉，正数通过
+GELU / SiLU：软阀门，不是硬切，而是平滑地压低或放行
+SwiGLU：门控结构，一条分支产生候选特征，一条分支决定放行多少
+```
+
+Activation 通常作用在升维后的中间表示上：
+
+```text
+x -> W_up -> h: [intermediate_size]
+h -> activation(h)
+activation(h) -> W_down -> out: [hidden_size]
+```
+
+注意，activation 不直接有自然语言语义。它提供的是数值选择机制：某些中间特征响应被放行，某些被抑制。自然语言语义是训练后这些数值机制组合出来的效果。
+
+可以这样总结 FFN：
+
+```text
+升维：用更多组可训练权重生成中间特征响应
+activation：对中间特征做非线性筛选和重编码
+降维：把加工后的中间特征组合回 hidden_size
+```
+
 ## Residual Connection 和 Norm
 
 残差连接实现上通常就是同 shape hidden states 的逐元素加法：
@@ -482,6 +604,8 @@ logits[:, -1, :]
 - Attention 横向计算 token 之间的关注关系，并汇总上下文信息。
 - Self-attention 只连接当前上下文；不同上下文之间的规律通过共享参数更新沉淀下来。
 - FFN / MLP 纵向加工每个 token 自身的特征表达。
+- FFN 的升维是通过 `W_up: [hidden_size, intermediate_size]` 学出更多中间特征通道。
+- Activation 作用在中间特征上，引入非线性选择机制。
 - Residual 和 Norm 负责稳定信息传递和数值分布。
 - Residual 操作的是 hidden states，不改变 batch、token 位置或 hidden_size 结构。
 - Norm 通常对每个 token 的 hidden vector 做归一化，稳定进入 attention / FFN 的数值尺度。
@@ -498,6 +622,28 @@ x = x + Attention(Norm(x))
 x = x + FFN(Norm(x))
 
 output: [batch_size, seq_len, hidden_size]
+```
+
+### 2026-05-19：FFN 升维和 activation
+
+本轮完成的理解：
+
+- FFN 不是 token 间通信层，而是对每个 token 的 hidden vector 做非线性特征加工。
+- 升维通过 `W_up` 完成，不是枚举特征组合，而是学习更多组加权组合通道。
+- `W_up` 的每一列可以理解为一个中间特征探测器。
+- 升维后的 `intermediate_size` 提供临时计算空间，不是最终输出维度。
+- Activation 作用在升维后的中间特征上，引入非线性选择机制。
+- ReLU / GELU / SiLU 可以先理解成不同风格的数值阀门。
+
+练习代码段：
+
+```text
+x: [hidden_size]
+W_up: [hidden_size, intermediate_size]
+h = x @ W_up
+h = activation(h)
+out = h @ W_down
+out: [hidden_size]
 ```
 
 ## 关键代码
@@ -520,6 +666,8 @@ Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
 - 不要把 shape 写法神秘化；`[batch_size, seq_len, hidden_size]` 就是三层数组/张量三个轴上的长度。
 - 不要把 `gamma / beta` 理解成直接控制 residual delta；它们控制的是 Norm 后表示的缩放和平移。
 - 不要把 FFN 理解成 token 之间交互；token 间交互主要发生在 attention。
+- 不要把升维理解成已有维度的排列组合；它是通过可训练矩阵生成更多中间特征响应。
+- 不要给 activation 强行绑定自然语言语义；它是数值层面的非线性筛选机制。
 
 ## 复盘
 
@@ -527,4 +675,4 @@ Transformer 可以先理解成一个上下文加工器。Embedding 提供每个 
 
 ## 下一步
 
-阅读 minGPT / nanoGPT 中 attention 模块的实现。
+深入 activation：ReLU、GELU、SiLU、SwiGLU，以及门控 FFN 为什么成为主流结构。
