@@ -956,6 +956,33 @@ def masked_attention(
 PYTHONPATH=practice/src python3 -m unittest practice.tests.test_causal_mask
 ```
 
+### 2026-05-19：Causal Mask coding 练习完成
+
+本轮完成的实现：
+
+- `build_causal_mask` 生成下三角可见矩阵。
+- `apply_causal_mask` 在 softmax 前把未来位置替换成 `-inf`。
+- `softmax` 将 masked scores 转成 attention weights，其中 `-inf` 对应权重 0。
+- `weighted_sum` 用 attention weights 对 value vectors 做加权求和。
+- `masked_attention` 串起 `mask -> softmax -> weighted sum`，验证未来 value 不会影响当前位置输出。
+
+练习代码段：
+
+```python
+masked_scores = apply_causal_mask(scores)
+weights_for_all_token = [softmax(line) for line in masked_scores]
+
+output = []
+for weights in weights_for_all_token:
+    output.append(weighted_sum(weights, values))
+```
+
+验证命令：
+
+```bash
+PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
+```
+
 ## 关键代码
 
 ```text
