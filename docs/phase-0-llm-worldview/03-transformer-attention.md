@@ -339,6 +339,27 @@ multi-head = 多个不同视角的 attention 并行工作
 
 不同 head 可能偏向关注不同关系，例如局部短语、指代、语法、长距离依赖等。但真实 head 的含义不一定能被人类清晰命名。
 
+引入 multi-head 的核心不是单纯增加参数，而是让模型拥有多套相似度空间和多张 attention 图。
+
+如果是 single-head：
+
+```text
+一套 Q/K/V
+-> 一张 attention weights: [seq_len, seq_len]
+```
+
+每个 token 只能得到一套综合的“该看谁”的权重分布。
+
+如果是 multi-head：
+
+```text
+多套 Q/K/V 子空间
+-> 多张 attention weights: [num_heads, seq_len, seq_len]
+-> 拼回 hidden_size
+```
+
+这样同一个 token 可以在不同 head 中分别关注不同关系，然后再把多个视角的结果合并。
+
 ## FFN / MLP
 
 FFN 主要对每个 token 自己的表示做非线性加工。
@@ -1052,6 +1073,28 @@ PYTHONPATH=practice/src python3 -m unittest practice.tests.test_transformer_bloc
 PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
 ```
 
+### 2026-05-19：Multi-Head Attention 的动机
+
+本轮完成的理解：
+
+- token 没有自己的 `Wq / Wk / Wv`；同一层里所有 token 共享同一套投影参数。
+- 每个 token 有自己的 hidden state，因此用共享 `Wq / Wk / Wv` 投影后会得到自己的 `q / k / v`。
+- `Qa` 和 `Kb` 的相关性分数来自点积并缩放：`Qa · Kb / sqrt(d_k)`。
+- `d_k` 通常不是整个 `hidden_size`，而是每个 attention head 的 `head_dim`。
+- single-head 即使使用同样总宽度，也只有一张 attention 图。
+- multi-head 的核心价值是多套 Q/K/V 子空间、多张 attention 图、多种“该关注谁”的视角。
+
+练习代码段：
+
+```text
+single-head:
+Q/K/V -> weights: [seq_len, seq_len]
+
+multi-head:
+Q/K/V -> weights: [num_heads, seq_len, seq_len]
+concat heads -> [seq_len, hidden_size]
+```
+
 ## 关键代码
 
 ```text
@@ -1069,6 +1112,7 @@ Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
 - 不要以为不同训练样本会在 attention 里互相看到；它们只通过共享参数的训练更新产生间接联系。
 - 不要忘记 decoder-only LLM 的 self-attention 通常带 causal mask；否则训练时会偷看未来 token。
 - 不要把 decoder-only 理解成“只能解码不能理解”；它只是采用自回归 decoder 风格结构，仍然可以通过生成范式处理理解任务。
+- 不要把 multi-head 理解成只是参数更多；关键是多套相似度空间和多张 attention 图。
 - 不要把 residual 理解成“把结果替换原始数据”；它是在原表示上叠加新信息。
 - 不要把 residual 加法理解成参数相加；它加的是当前前向计算里的 hidden states / activation。
 - 不要把 shape 写法神秘化；`[batch_size, seq_len, hidden_size]` 就是三层数组/张量三个轴上的长度。
