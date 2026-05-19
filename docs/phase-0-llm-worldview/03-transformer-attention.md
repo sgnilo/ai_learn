@@ -753,6 +753,64 @@ x = x + ffn_delta
 output: [batch_size, seq_len, hidden_size]
 ```
 
+### 2026-05-19：多层 Transformer block 的工程实现
+
+本轮完成的理解：
+
+- 大模型通常堆叠很多层 Transformer block。
+- 每一层 block 的计算逻辑基本相同，但每一层都有自己独立的可训练参数。
+- 工程实现里通常定义一个 `TransformerBlock` 类，用它实例化出 `num_layers` 个 block。
+- 类负责复用计算结构；实例负责持有真实参数。
+- forward 时通过循环让 hidden states 依次经过这些 block。
+- 如果只用同一个 block 实例反复调用，就是参数共享；主流 LLM 通常不是这样，而是共享代码结构、不共享每层参数。
+- 在 PyTorch 里通常用 `ModuleList` 保存多个 block 实例，这样优化器才能发现并更新每层参数。
+
+练习代码段：
+
+```python
+class TransformerBlock:
+    def __init__(self):
+        self.attn = SelfAttention()
+        self.ffn = FeedForward()
+        self.norm1 = RMSNorm()
+        self.norm2 = RMSNorm()
+
+    def forward(self, x):
+        x = x + self.attn(self.norm1(x))
+        x = x + self.ffn(self.norm2(x))
+        return x
+
+
+class Transformer:
+    def __init__(self, num_layers):
+        self.layers = [
+            TransformerBlock()
+            for _ in range(num_layers)
+        ]
+
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer.forward(x)
+        return x
+```
+
+对应真实框架里的思路：
+
+```python
+self.layers = nn.ModuleList([
+    TransformerBlock(config)
+    for _ in range(config.num_layers)
+])
+```
+
+可以这样记：
+
+```text
+类：定义 block 的计算模板
+实例：持有某一层自己的参数
+循环：让 hidden states 逐层被 transform
+```
+
 ## 关键代码
 
 ```text
@@ -773,6 +831,7 @@ Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
 - 不要把 shape 写法神秘化；`[batch_size, seq_len, hidden_size]` 就是三层数组/张量三个轴上的长度。
 - 不要把 `gamma / beta` 理解成直接控制 residual delta；它们控制的是 Norm 后表示的缩放和平移。
 - 不要把现代 LLM 常见的 Pre-Norm 顺序理解反；通常是先 `Norm(x)`，再进入 attention / FFN，然后 residual 加回 `x`。
+- 不要把多层 Transformer block 理解成同一个实例反复调用；主流实现通常是同一个类创建多个实例，每层参数独立。
 - 不要把 FFN 理解成 token 之间交互；token 间交互主要发生在 attention。
 - 不要把升维理解成已有维度的排列组合；它是通过可训练矩阵生成更多中间特征响应。
 - 不要给 activation 强行绑定自然语言语义；它是数值层面的非线性筛选机制。
@@ -784,4 +843,4 @@ Transformer 可以先理解成一个上下文加工器。Embedding 提供每个 
 
 ## 下一步
 
-深入 activation：ReLU、GELU、SiLU、SwiGLU，以及门控 FFN 为什么成为主流结构。
+阅读 minGPT / nanoGPT 或 Hugging Face 模型里的 Transformer block 实现，对照类、实例、参数和 forward 循环。
