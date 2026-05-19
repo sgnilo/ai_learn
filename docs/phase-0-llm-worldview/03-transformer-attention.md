@@ -436,6 +436,33 @@ activation(h) -> W_down -> out: [hidden_size]
 
 注意，activation 不直接有自然语言语义。它提供的是数值选择机制：某些中间特征响应被放行，某些被抑制。自然语言语义是训练后这些数值机制组合出来的效果。
 
+### 为什么常见 activation 更偏向正响应？
+
+ReLU、SiLU、GELU 这类 activation 通常都会让正响应更容易通过，让负响应被砍掉或压低。这里压低的是中间特征空间里的响应，不等于最终 FFN 只能做正向更新。
+
+可以把 `W_up` 后的每个中间维度理解成一个特征探测器：
+
+```text
+h_i 很正：这个探测器被正向命中
+h_i 接近 0：这个特征不明显
+h_i 很负：更像反方向或不匹配
+```
+
+activation 的作用是让“正向命中”的中间特征更有资格参与后面的 `h @ W_down`，并抑制相关性不强或反向的中间响应。
+
+但 `W_down` 的权重仍然可以是正数或负数：
+
+```text
+delta_j = h_i * W_down[i, j]
+```
+
+所以一个被正向激活的中间特征，最终既可以增强某些 hidden 维度，也可以削弱某些 hidden 维度。更准确地说：
+
+```text
+W_up + activation：选择哪些中间条件成立
+W_down：决定这些条件成立后，如何更新原 hidden state
+```
+
 可以这样总结 FFN：
 
 ```text
@@ -679,6 +706,7 @@ output: [batch_size, seq_len, hidden_size]
 - Activation 作用在升维后的中间特征上，引入非线性选择机制。
 - ReLU / GELU / SiLU 可以先理解成不同风格的数值阀门。
 - SiLU 的核心是 `x * sigmoid(x)`：用输入自己生成软门控比例，再乘回输入本身。
+- activation 偏向采纳正向命中的中间特征，并抑制相关性不强的中间响应；最终是否增强或削弱原 hidden 维度由 `W_down` 决定。
 
 练习代码段：
 
@@ -721,6 +749,7 @@ Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
 - 不要把 FFN 理解成 token 之间交互；token 间交互主要发生在 attention。
 - 不要把升维理解成已有维度的排列组合；它是通过可训练矩阵生成更多中间特征响应。
 - 不要给 activation 强行绑定自然语言语义；它是数值层面的非线性筛选机制。
+- 不要把 activation 压低负响应理解成“模型不做负向更新”；负向更新仍然可以通过 `W_down` 产生。
 
 ## 复盘
 
