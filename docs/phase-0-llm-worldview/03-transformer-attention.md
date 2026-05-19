@@ -983,6 +983,75 @@ for weights in weights_for_all_token:
 PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
 ```
 
+### 2026-05-19：Self-Attention 和 TransformerBlock 巩固练习
+
+本轮搭好的练习入口：
+
+- `practice/src/ai_practice/self_attention.py`
+- `practice/tests/test_self_attention.py`
+- `practice/src/ai_practice/transformer_block.py`
+- `practice/tests/test_transformer_block.py`
+
+当前状态：测试已写好，源码中保留 `NotImplementedError`，用于继续做 TDD 红灯练习。
+
+Self-Attention 练习目标：
+
+```text
+Q / K
+-> scores = Q @ K.T / sqrt(d_k)
+-> causal mask
+-> softmax
+-> weights @ V
+```
+
+待实现函数：
+
+```python
+def dot(left: list[float], right: list[float]) -> float:
+    ...
+
+
+def attention_scores(
+    queries: list[list[float]],
+    keys: list[list[float]],
+) -> list[list[float]]:
+    ...
+
+
+def causal_self_attention(
+    queries: list[list[float]],
+    keys: list[list[float]],
+    values: list[list[float]],
+) -> list[list[float]]:
+    ...
+```
+
+TransformerBlock 练习目标：
+
+```text
+x = x + Attention(Norm(x))
+x = x + FFN(Norm(x))
+```
+
+待实现类：
+
+```python
+class TransformerBlock:
+    def __init__(self, norm1, attention, norm2, ffn) -> None:
+        ...
+
+    def forward(self, x: list[list[float]]) -> list[list[float]]:
+        ...
+```
+
+验证命令：
+
+```bash
+PYTHONPATH=practice/src python3 -m unittest practice.tests.test_self_attention
+PYTHONPATH=practice/src python3 -m unittest practice.tests.test_transformer_block
+PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
+```
+
 ## 关键代码
 
 ```text
