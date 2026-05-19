@@ -58,12 +58,12 @@ Transformer block 的核心任务是：
 
 ```text
 输入 hidden states
+-> LayerNorm / RMSNorm
 -> Self-Attention
--> 残差连接
+-> 残差连接：x = x + attention_delta
 -> LayerNorm / RMSNorm
 -> Feed Forward Network
--> 残差连接
--> LayerNorm / RMSNorm
+-> 残差连接：x = x + ffn_delta
 -> 输出 hidden states
 ```
 
@@ -76,12 +76,14 @@ Residual：保留原始信息，并叠加新信息
 Norm：稳定数值尺度，让深层训练更稳定
 ```
 
-注意：真实模型可能采用 pre-norm 结构，也就是先 norm 再进入 attention / FFN：
+现代很多 LLM 采用 pre-norm 结构，也就是先 norm，再进入 attention / FFN：
 
 ```text
 x = x + Attention(Norm(x))
 x = x + FFN(Norm(x))
 ```
+
+因此，Norm 更准确的角色是稳定送入子层的输入尺度，而不是在 attention / FFN 之后专门去规范化 delta。Attention / FFN 负责计算变化量，Residual 负责把变化量叠加回 hidden states。
 
 但从第一轮理解看，可以先抓住这个主干：
 
@@ -727,6 +729,30 @@ SiLU(-1.0) = -1.0 * sigmoid(-1.0) ≈ -0.27
 SiLU(-5.0) = -5.0 * sigmoid(-5.0) ≈ -0.03
 ```
 
+### 2026-05-19：Pre-Norm Transformer block 顺序
+
+本轮完成的理解：
+
+- 一个 Transformer block 的核心结构可以理解为两段：`Norm + Attention + Residual`，以及 `Norm + FFN + Residual`。
+- 现代 LLM 常见写法是 `x = x + Attention(Norm(x))` 和 `x = x + FFN(Norm(x))`。
+- Norm 稳定的是送入 attention / FFN 的 hidden states 尺度，不是专门把 attention / FFN 输出后的 delta 再做放缩平移。
+- Attention 计算上下文变化量，FFN 计算特征加工变化量，Residual 把这些变化量叠加回原 hidden states。
+- 一个 block 完成后输出同 shape 的新 hidden states，交给下一个 Transformer block。
+
+练习代码段：
+
+```text
+x: [batch_size, seq_len, hidden_size]
+
+attention_delta = SelfAttention(Norm(x))
+x = x + attention_delta
+
+ffn_delta = FFN(Norm(x))
+x = x + ffn_delta
+
+output: [batch_size, seq_len, hidden_size]
+```
+
 ## 关键代码
 
 ```text
@@ -746,6 +772,7 @@ Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
 - 不要把 residual 加法理解成参数相加；它加的是当前前向计算里的 hidden states / activation。
 - 不要把 shape 写法神秘化；`[batch_size, seq_len, hidden_size]` 就是三层数组/张量三个轴上的长度。
 - 不要把 `gamma / beta` 理解成直接控制 residual delta；它们控制的是 Norm 后表示的缩放和平移。
+- 不要把现代 LLM 常见的 Pre-Norm 顺序理解反；通常是先 `Norm(x)`，再进入 attention / FFN，然后 residual 加回 `x`。
 - 不要把 FFN 理解成 token 之间交互；token 间交互主要发生在 attention。
 - 不要把升维理解成已有维度的排列组合；它是通过可训练矩阵生成更多中间特征响应。
 - 不要给 activation 强行绑定自然语言语义；它是数值层面的非线性筛选机制。
