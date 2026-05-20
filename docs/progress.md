@@ -12,7 +12,7 @@ title: "Progress"
 | Active phase | Phase 0：建立 AI / LLM 世界观 |
 | Active topics | Tokenizer, Embedding, Transformer |
 | Practice policy | 练习代码不作为公开入口；整理后以代码块进入主题笔记 |
-| Next review | 完成 self-attention 与 TransformerBlock 两个巩固练习，再阅读真实 causal self-attention 实现 |
+| Next review | 阅读真实 causal self-attention 实现，对照 Q/K/V、mask、softmax、residual 和 forward 循环 |
 
 ## Phase Status
 
@@ -28,6 +28,7 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
+| 2026-05-21 | Phase 0 / Transformer Practice | 完成 Self-Attention 与 TransformerBlock 练习，串起 QK score、causal attention 和 Pre-Norm residual forward | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md), `practice/src/ai_practice/self_attention.py`, `practice/src/ai_practice/transformer_block.py` | 阅读真实 causal self-attention 实现 |
 | 2026-05-19 | Phase 0 / Transformer | 记录 Multi-Head Attention 的动机：多套相似度空间、多张 attention 图，而不是单纯增加参数 | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md) | 完成 self-attention 与 TransformerBlock 练习 |
 | 2026-05-19 | Phase 0 / Transformer Practice | 搭建 Self-Attention 与 TransformerBlock 巩固练习，覆盖 Q/K score、causal self-attention 和 Pre-Norm forward 顺序 | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md), `practice/tests/test_self_attention.py`, `practice/tests/test_transformer_block.py` | 实现两个练习到测试通过 |
 | 2026-05-19 | Phase 0 / Transformer Practice | 完成 Causal Mask 练习实现，串起下三角 mask、masked softmax 和 value 加权求和 | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md), `practice/src/ai_practice/causal_mask.py` | 阅读真实 causal self-attention 实现 |

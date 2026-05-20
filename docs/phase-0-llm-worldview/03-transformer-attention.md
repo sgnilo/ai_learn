@@ -1073,6 +1073,55 @@ PYTHONPATH=practice/src python3 -m unittest practice.tests.test_transformer_bloc
 PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
 ```
 
+### 2026-05-21：Self-Attention 和 TransformerBlock 练习完成
+
+本轮完成的实现：
+
+- `dot`：计算两个向量点积。
+- `attention_scores`：计算 `Q @ K.T / sqrt(d_k)`，输出 `[token_size, token_size]` 的 score 矩阵。
+- `causal_self_attention`：复用 causal mask 练习中的 `masked_attention`，串起 `scores -> causal mask -> softmax -> weights @ V`。
+- `TransformerBlock.forward`：实现 Pre-Norm block 顺序：`x = x + Attention(Norm(x))`，再 `x = x + FFN(Norm(x))`。
+- `add_vectors`：封装 residual 的逐元素加法，避免在 `forward` 中混淆下标。
+
+Self-Attention 完成版代码段：
+
+```python
+def attention_scores(queries, keys):
+    d_k = len(queries[0])
+    return [[dot(query, key) / math.sqrt(d_k) for key in keys] for query in queries]
+
+
+def causal_self_attention(queries, keys, values):
+    scores = attention_scores(queries, keys)
+    return masked_attention(scores, values)
+```
+
+TransformerBlock 完成版代码段：
+
+```python
+def forward(self, x):
+    attention_delta = self.attention(self.norm1(x))
+    x = add_vectors(x, attention_delta)
+
+    ffn_delta = self.ffn(self.norm2(x))
+    return add_vectors(x, ffn_delta)
+```
+
+本轮踩坑：
+
+- `scores[i][j]` 的含义是 token `i` 的 query 看 token `j` 的 key，不要反成 `scores[j][i]`。
+- `d_k` 是 query/key 向量维度，不是 token 数。
+- `out[i][d] = Σ weights[i][j] * V[j][d]`，value 汇总时必须累加，不是覆盖。
+- softmax 归一化时要归一化整行，不能只除最后一个位置。
+- residual 第二段要加到 attention residual 后的新 `x` 上，而不是加回最初输入。
+- 浮点数测试不要直接精确相等，使用 `math.isclose`。
+
+验证命令：
+
+```bash
+PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
+```
+
 ### 2026-05-19：Multi-Head Attention 的动机
 
 本轮完成的理解：

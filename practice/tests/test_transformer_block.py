@@ -1,3 +1,4 @@
+import math
 import unittest
 
 from ai_practice.transformer_block import TransformerBlock
@@ -37,8 +38,11 @@ class TransformerBlockTest(unittest.TestCase):
         ffn = RecordingSublayer("ffn", calls, [[0.3, 0.4]])
 
         block = TransformerBlock(norm1, attention, norm2, ffn)
+        output = block.forward([[1.0, 2.0]])
 
-        self.assertEqual(block.forward([[1.0, 2.0]]), [[1.4, 2.6]])
+        self.assertTrue(math.isclose(output[0][0], 1.4))
+        self.assertTrue(math.isclose(output[0][1], 2.6))
+
         self.assertEqual(calls, ["norm1", "attention", "norm2", "ffn"])
 
     def test_second_norm_receives_attention_residual_output(self) -> None:
