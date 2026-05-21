@@ -12,7 +12,7 @@ title: "Progress"
 | Active phase | Phase 0：建立 AI / LLM 世界观 |
 | Active topics | Tokenizer, Embedding, Transformer, LM Head / Logits / Loss |
 | Practice policy | 练习代码不作为公开入口；整理后以代码块进入主题笔记 |
-| Next review | 学习 next-token prediction 与 label shifting：input ids 和 labels 如何错位对齐 |
+| Next review | 学习 optimizer：SGD / AdamW 如何基于梯度更新参数 |
 
 ## Phase Status
 
@@ -28,6 +28,7 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
+| 2026-05-21 | Phase 0 / Backpropagation | 记录导数、链式法则、输入梯度传递、矩阵乘法梯度和参数更新不会重复叠加的心智模型 | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md) | 学习 optimizer 与 AdamW |
 | 2026-05-21 | Phase 0 / LM Head Practice | 完成 next-token loss 练习实现，串起 logits/labels shift、softmax、NLL 和 shifted cross entropy 平均 loss | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/src/ai_practice/next_token_loss.py` | 学习反向传播与梯度更新 |
 | 2026-05-21 | Phase 0 / LM Head Practice | 完成 logits softmax 练习实现，理解每个位置独立得到 vocab probability distribution | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/src/ai_practice/softmax_logits.py` | 学习 label shifting |
 | 2026-05-21 | Phase 0 / LM Head Practice | 搭建 logits softmax 练习测试，覆盖单行 logits 到概率，以及按位置逐行 softmax | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/tests/test_softmax_logits.py` | 实现 `practice/src/ai_practice/softmax_logits.py` 到测试通过 |

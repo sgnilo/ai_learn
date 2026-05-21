@@ -418,6 +418,228 @@ shift_labels = [batch_labels[1:] for batch_labels in labels]
 PYTHONPATH=practice/src python3 -m unittest practice.tests.test_next_token_loss
 ```
 
+## 反向传播与梯度更新
+
+### 2026-05-21：导数、链式法则与梯度
+
+训练闭环里，forward 负责算出预测和 loss，backward 负责沿着同一条计算路径反向计算梯度。
+
+```text
+forward:
+input_ids -> embedding -> transformer -> hidden_states -> LM head -> logits -> loss
+
+backward:
+loss -> logits -> LM head -> transformer -> embedding
+```
+
+反向传播的起点可以理解为：
+
+```text
+d_loss / d_loss = 1
+```
+
+也就是从最终标量 loss 开始，逐层计算：
+
+```text
+d_loss / d_logits
+d_loss / d_hidden_states
+d_loss / d_W_lm
+d_loss / d_attention_weights
+d_loss / d_embedding_matrix
+...
+```
+
+导数的核心含义是变化率。训练里更具体地说，是：
+
+```text
+参数发生微小变化时，loss 会朝哪个方向、以多大幅度变化。
+```
+
+所以：
+
+```text
+d_loss / d_w
+```
+
+不是普通的 `loss / w` 相除，而是：
+
+```text
+loss 的微小变化 / w 的微小变化
+```
+
+如果 `d_loss/d_w > 0`，说明 `w` 增大会让 loss 增大，optimizer 应该让 `w` 变小。
+如果 `d_loss/d_w < 0`，说明 `w` 增大会让 loss 减小，optimizer 应该让 `w` 变大。
+
+最简单的参数更新形式：
+
+```text
+w = w - learning_rate * gradient
+```
+
+### 导数公式与运行时梯度
+
+一个关键区分：
+
+```text
+函数结构决定“怎么算梯度”。
+当前 forward 的具体数值决定“这次梯度是多少”。
+```
+
+比如：
+
+```text
+y = w * x
+loss = (y - target)^2
+```
+
+先根据函数结构推导通用公式：
+
+```text
+d_loss/d_w = 2 * (w * x - target) * x
+```
+
+然后在某一次训练 step 中代入当前值：
+
+```text
+w = 3
+x = 2
+target = 10
+
+d_loss/d_w = 2 * (3 * 2 - 10) * 2 = -16
+```
+
+下一轮参数变成 `w = 4.6` 后，同一个公式会得到新的梯度：
+
+```text
+d_loss/d_w = 2 * (4.6 * 2 - 10) * 2 = -3.2
+```
+
+所以梯度像当前位置的一张局部快照：它描述的是当前参数点附近，loss 面的下降方向和斜率。
+
+### 每层为什么要算输入梯度
+
+每一层反向传播时通常会算两类梯度：
+
+```text
+1. d_loss/d_param：当前层参数的梯度，用于更新当前层参数
+2. d_loss/d_input：当前层输入的梯度，用于继续传给上一层
+```
+
+以最小层为例：
+
+```text
+y = w * x
+```
+
+如果后面传回来：
+
+```text
+d_loss/d_y
+```
+
+那么当前层会根据链式法则计算：
+
+```text
+d_loss/d_w = d_loss/d_y * d_y/d_w = d_loss/d_y * x
+d_loss/d_x = d_loss/d_y * d_y/d_x = d_loss/d_y * w
+```
+
+其中 `d_loss/d_w` 用来更新当前层参数 `w`，`d_loss/d_x` 不更新当前输入本身，而是传给上一层。
+
+在神经网络里，当前层输入通常是上一层输出：
+
+```text
+h1 = Layer1(input)
+h2 = Layer2(h1)
+loss = Loss(h2)
+```
+
+Layer2 反向时会算：
+
+```text
+d_loss/d_W2  # 更新 Layer2 参数
+d_loss/d_h1  # 传回 Layer1
+```
+
+Layer1 收到 `d_loss/d_h1` 后，再算：
+
+```text
+d_loss/d_W1  # 更新 Layer1 参数
+d_loss/d_input
+```
+
+所以不会重复更新同一个东西：
+
+```text
+参数梯度用于更新本层参数。
+输入梯度只是把 loss 的责任信号传回上一层。
+```
+
+### 矩阵乘法里的对应关系
+
+神经网络里更常见的是矩阵乘法：
+
+```text
+Y = X @ W
+```
+
+如果后面传回来的输出梯度记为：
+
+```text
+G = d_loss/d_Y
+```
+
+那么：
+
+```text
+d_loss/d_W = X^T @ G
+d_loss/d_X = G @ W^T
+```
+
+映射到 LM head：
+
+```text
+logits = hidden_states @ W_lm
+```
+
+反向时：
+
+```text
+d_loss/d_W_lm = hidden_states^T @ d_loss/d_logits
+d_loss/d_hidden_states = d_loss/d_logits @ W_lm^T
+```
+
+`d_loss/d_W_lm` 用来更新 LM head 权重。
+`d_loss/d_hidden_states` 继续传回最后一个 Transformer block。
+
+### 是否会调整过头
+
+每层同时计算参数梯度和输入梯度不会天然导致重复叠加，因为二者用途不同。
+
+真正可能导致参数调整过头的是：
+
+- learning rate 太大；
+- 梯度本身过大；
+- optimizer 设置不合适；
+- 数据分布或训练过程不稳定。
+
+因此训练系统通常会配合：
+
+- learning rate schedule；
+- gradient clipping；
+- AdamW；
+- warmup；
+- normalization。
+
+本轮心智模型：
+
+```text
+loss 是最终错误值。
+gradient 是每个参数对 loss 的影响方向和影响强度。
+backprop 是沿 forward 的反方向应用链式法则，把 loss 的责任信号传回每一层。
+optimizer 才是真正修改参数的部分。
+```
+
 ## 关键代码
 
 ```text
@@ -432,8 +654,8 @@ probabilities = softmax(logits)
 
 ## 复盘
 
-尚未复盘。
+当前已经串起前向 loss 和反向梯度的核心关系：forward 得到 loss，backward 用链式法则计算每层参数梯度和输入梯度，optimizer 再基于参数梯度更新模型权重。
 
 ## 下一步
 
-先理解 LM head 和 logits：为什么 Transformer 输出还要映射到 vocab_size，以及 logits 如何表示下一个 token 的候选分数。
+学习 optimizer，重点理解 SGD / AdamW 如何基于梯度、学习率和历史梯度状态更新参数。
