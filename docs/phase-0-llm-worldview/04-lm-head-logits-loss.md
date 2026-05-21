@@ -284,6 +284,40 @@ def logits_to_probabilities(
 PYTHONPATH=practice/src python3 -m unittest practice.tests.test_softmax_logits
 ```
 
+### 2026-05-21：Logits Softmax coding 练习完成
+
+本轮完成的实现：
+
+- `softmax` 将一行 vocab logits 转成概率分布。
+- `logits_to_probabilities` 对 `[seq_len, vocab_size]` 的每一行分别做 softmax。
+- 每个位置独立得到一个 vocab probability distribution。
+- softmax 结果中每个概率都大于等于 0，并且每一行概率和为 1。
+
+完成版代码段：
+
+```python
+def softmax(logits):
+    exp_logits = [math.exp(logit) for logit in logits]
+    exp_sum = sum(exp_logits)
+    return [exp_logit / exp_sum for exp_logit in exp_logits]
+
+
+def logits_to_probabilities(logits_by_position):
+    return [softmax(logits) for logits in logits_by_position]
+```
+
+本轮踩坑：
+
+- logits 是分数，不是概率；softmax 后才是概率分布。
+- 对 `[seq_len, vocab_size]` 做 softmax 时，要按位置逐行计算，不能把所有位置展平成一个大列表。
+- softmax 和 attention 中的 softmax 是同一种数学操作，但含义不同：attention 中表示“看哪些 token”，LM head 后表示“下一个 token 是谁”。
+
+验证命令：
+
+```bash
+PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
+```
+
 ## 关键代码
 
 ```text
