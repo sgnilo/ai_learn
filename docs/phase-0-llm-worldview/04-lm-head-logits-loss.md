@@ -136,6 +136,39 @@ token ids
 -> optimizer.step()
 ```
 
+### 2026-05-21：训练主链路总览
+
+本轮完成的理解：
+
+- Transformer 负责把上下文加工成 `hidden_states`。
+- LM head 把 `hidden_states` 映射到词表空间，得到每个位置对所有 token 的候选分数。
+- Logits 是 softmax 前的未归一化分数，不是概率。
+- Softmax 把 logits 转成概率分布。
+- Label 是真实的下一个 token，通常由原 token 序列右移一位得到。
+- Cross entropy loss 衡量模型给真实下一个 token 的概率够不够高。
+- Backpropagation 根据 loss 计算每个参数对错误的贡献和修改方向。
+- Optimizer 根据梯度真正更新 embedding、Transformer、LM head 等参数。
+
+训练 step 可以压缩成：
+
+```text
+1. 取一批 token ids
+2. 构造 input ids 和 labels
+3. forward: embedding -> Transformer -> LM head -> logits
+4. loss: logits vs labels
+5. backward: loss 反向传播得到 gradients
+6. optimizer.step(): 更新参数
+7. optimizer.zero_grad(): 清空梯度，进入下一批
+```
+
+本轮关键心智模型：
+
+```text
+模型怎么计算：token ids -> hidden_states -> logits
+模型怎么知道错：logits -> probabilities -> loss
+模型怎么学习：loss -> gradients -> optimizer update
+```
+
 ## 关键代码
 
 待实践。
