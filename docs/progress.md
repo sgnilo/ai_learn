@@ -28,7 +28,7 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
-| 2026-05-21 | Phase 0 / LM Head Practice | 搭建 next-token loss 练习测试，覆盖 logits/labels shift、NLL 和 shifted cross entropy 平均 loss | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/tests/test_next_token_loss.py` | 实现 `practice/src/ai_practice/next_token_loss.py` 到测试通过 |
+| 2026-05-21 | Phase 0 / LM Head Practice | 完成 next-token loss 练习实现，串起 logits/labels shift、softmax、NLL 和 shifted cross entropy 平均 loss | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/src/ai_practice/next_token_loss.py` | 学习反向传播与梯度更新 |
 | 2026-05-21 | Phase 0 / LM Head Practice | 完成 logits softmax 练习实现，理解每个位置独立得到 vocab probability distribution | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/src/ai_practice/softmax_logits.py` | 学习 label shifting |
 | 2026-05-21 | Phase 0 / LM Head Practice | 搭建 logits softmax 练习测试，覆盖单行 logits 到概率，以及按位置逐行 softmax | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/tests/test_softmax_logits.py` | 实现 `practice/src/ai_practice/softmax_logits.py` 到测试通过 |
 | 2026-05-21 | Phase 0 / LM Head Practice | 完成 LM Head 练习实现，手写 hidden_states 到 vocab logits 的矩阵投影 | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/src/ai_practice/lm_head.py` | 学习 logits 到 softmax probability |

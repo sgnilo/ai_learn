@@ -318,13 +318,13 @@ def logits_to_probabilities(logits_by_position):
 PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
 ```
 
-### 2026-05-21：Next-token Loss coding 练习
+### 2026-05-21：Next-token Loss coding 练习复盘
 
-本轮搭好的练习入口：
+本轮练习入口：
 
 - 源码入口：`practice/src/ai_practice/next_token_loss.py`
 - 测试入口：`practice/tests/test_next_token_loss.py`
-- 当前状态：测试已写好，源码函数暂时抛出 `NotImplementedError`，用于 TDD 红灯练习。
+- 当前状态：实现已完成，目标测试通过。
 
 练习目标：
 
@@ -336,19 +336,80 @@ shift_logits = logits[:, :-1, :]
 shift_labels = labels[:, 1:]
 ```
 
-待实现函数：
+最终练习代码：
 
 ```python
-def shift_for_next_token_loss(logits, labels):
-    ...
+from ai_practice.softmax_logits import softmax
+import math
 
 
-def negative_log_likelihood(probabilities, label):
-    ...
+def shift_for_next_token_loss(
+    logits: list[list[list[float]]],
+    labels: list[list[int]],
+) -> tuple[list[list[list[float]]], list[list[int]]]:
+    shift_logits = []
+    for i, logit in enumerate(logits):
+        new_logit = []
+        for j, _ in enumerate(logit):
+            if j < len(logits[i]) - 1:
+                new_logit.append(logits[i][j])
+        shift_logits.append(new_logit)
+
+    shift_labels = []
+    for i, label in enumerate(labels):
+        new_label = []
+        for j, _ in enumerate(label):
+            if j > 0:
+                new_label.append(labels[i][j])
+        shift_labels.append(new_label)
+
+    return [shift_logits, shift_labels]
 
 
-def shifted_cross_entropy_loss(logits, labels):
-    ...
+def negative_log_likelihood(
+    probabilities: list[float],
+    label: int,
+) -> float:
+    probability = probabilities[label]
+    return -math.log(probability)
+
+
+def shifted_cross_entropy_loss(
+    logits: list[list[list[float]]],
+    labels: list[list[int]],
+) -> float:
+    shift_logits, shift_labels = shift_for_next_token_loss(logits, labels)
+    losses = [
+        [
+            negative_log_likelihood(
+                softmax(shift_logits[sen_id][label_index]),
+                label,
+            )
+            for label_index, label in enumerate(sen)
+        ]
+        for sen_id, sen in enumerate(shift_labels)
+    ]
+    total = 0
+    loss_len = 0
+    for loss_sen in losses:
+        total += sum(loss_sen)
+        loss_len += len(loss_sen)
+    return total / loss_len
+```
+
+本轮踩坑：
+
+- `enumerate(list)` 返回的是 `(index, value)`，不能直接把这个 tuple 当成数字下标或和 `int` 比较。
+- `shift_logits` 对齐的是“当前位置预测下一个 token”，所以要去掉最后一个位置：`logits[:, :-1, :]`。
+- `shift_labels` 是被预测的下一个 token，所以要去掉第一个 label：`labels[:, 1:]`。
+- `negative_log_likelihood` 的输入应当是 probability distribution，不是原始 logits。
+- 计算 `shifted_cross_entropy_loss` 时，每个位置的 logits 要先经过 `softmax`，再取正确 label 对应的概率做 `-log(probability)`。
+
+可以进一步简化的写法：
+
+```python
+shift_logits = [batch_logits[:-1] for batch_logits in logits]
+shift_labels = [batch_labels[1:] for batch_labels in labels]
 ```
 
 验证命令：
