@@ -28,6 +28,7 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
+| 2026-05-21 | Phase 0 / LM Head Practice | 完成 LM Head 练习实现，手写 hidden_states 到 vocab logits 的矩阵投影 | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/src/ai_practice/lm_head.py` | 学习 logits 到 softmax probability |
 | 2026-05-21 | Phase 0 / LM Head Practice | 搭建 LM Head 练习测试，覆盖 hidden_states 到 vocab logits 的矩阵投影和输出 shape | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/tests/test_lm_head.py` | 实现 `practice/src/ai_practice/lm_head.py` 到测试通过 |
 | 2026-05-21 | Phase 0 / LM Head | 记录训练主链路总览，串起 hidden_states、LM head、logits、labels、loss、backpropagation 和 optimizer update | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md) | 学习 LM head 与 logits |
 | 2026-05-21 | Phase 0 / Curriculum | 纠正 Transformer 后的学习顺序，新增 LM Head / Logits / Loss 章节，将 Context Window / KV Cache 顺延到训练闭环之后 | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md) | 学习 LM head 与 logits |

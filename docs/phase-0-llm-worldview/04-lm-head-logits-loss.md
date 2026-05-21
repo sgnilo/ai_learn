@@ -201,6 +201,45 @@ def lm_head_logits(
 PYTHONPATH=practice/src python3 -m unittest practice.tests.test_lm_head
 ```
 
+### 2026-05-21：LM Head coding 练习完成
+
+本轮完成的实现：
+
+- `lm_head_logits` 手写完成 `hidden_states @ lm_head`。
+- 输入 `hidden_states` 的 shape 是 `[seq_len, hidden_size]`。
+- 参数 `lm_head` 的 shape 是 `[hidden_size, vocab_size]`。
+- 输出 `logits` 的 shape 是 `[seq_len, vocab_size]`。
+- 每个 token 位置都会得到一整行 vocab logits。
+
+完成版代码段：
+
+```python
+def lm_head_logits(hidden_states, lm_head):
+    vocab_size = len(lm_head[0])
+    logits = [[0.0 for _ in range(vocab_size)] for _ in hidden_states]
+
+    for token_index, hidden_vector in enumerate(hidden_states):
+        for vocab_index in range(vocab_size):
+            for hidden_index, hidden_value in enumerate(hidden_vector):
+                logits[token_index][vocab_index] += (
+                    hidden_value * lm_head[hidden_index][vocab_index]
+                )
+
+    return logits
+```
+
+本轮踩坑：
+
+- `lm_head` 没有 token 维度，不能用 token index 去访问 `lm_head[token_index]`。
+- 输出的行数来自 `seq_len`，输出的列数来自 `vocab_size`。
+- 中间被求和掉的是 `hidden_size` 维度。
+
+验证命令：
+
+```bash
+PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
+```
+
 ## 关键代码
 
 ```text
