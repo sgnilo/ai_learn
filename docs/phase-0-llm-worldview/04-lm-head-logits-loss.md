@@ -169,9 +169,43 @@ token ids
 模型怎么学习：loss -> gradients -> optimizer update
 ```
 
+### 2026-05-21：LM Head coding 练习
+
+本轮搭好的练习入口：
+
+- 源码入口：`practice/src/ai_practice/lm_head.py`
+- 测试入口：`practice/tests/test_lm_head.py`
+- 当前状态：测试已写好，源码函数暂时抛出 `NotImplementedError`，用于 TDD 红灯练习。
+
+练习目标：
+
+```text
+hidden_states: [seq_len, hidden_size]
+lm_head:       [hidden_size, vocab_size]
+logits:        [seq_len, vocab_size]
+```
+
+待实现函数：
+
+```python
+def lm_head_logits(
+    hidden_states: list[list[float]],
+    lm_head: list[list[float]],
+) -> list[list[float]]:
+    ...
+```
+
+验证命令：
+
+```bash
+PYTHONPATH=practice/src python3 -m unittest practice.tests.test_lm_head
+```
+
 ## 关键代码
 
-待实践。
+```text
+logits = hidden_states @ LM_head
+```
 
 ## 踩坑
 
