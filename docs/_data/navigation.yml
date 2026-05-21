@@ -21,18 +21,20 @@
           url: /phase-0-llm-worldview/02-embedding.html
         - title: Transformer / Attention
           url: /phase-0-llm-worldview/03-transformer-attention.html
+        - title: LM Head / Logits / Loss
+          url: /phase-0-llm-worldview/04-lm-head-logits-loss.html
         - title: Context Window / KV Cache
-          url: /phase-0-llm-worldview/04-context-window-kv-cache.html
+          url: /phase-0-llm-worldview/05-context-window-kv-cache.html
         - title: Inference
-          url: /phase-0-llm-worldview/05-inference.html
+          url: /phase-0-llm-worldview/06-inference.html
         - title: RAG
-          url: /phase-0-llm-worldview/06-rag.html
+          url: /phase-0-llm-worldview/07-rag.html
         - title: Function Calling
-          url: /phase-0-llm-worldview/07-function-calling.html
+          url: /phase-0-llm-worldview/08-function-calling.html
         - title: Agent Workflow
-          url: /phase-0-llm-worldview/08-agent-workflow.html
+          url: /phase-0-llm-worldview/09-agent-workflow.html
         - title: Local Model Deployment
-          url: /phase-0-llm-worldview/09-local-model-deployment.html
+          url: /phase-0-llm-worldview/10-local-model-deployment.html
     - title: Phase 1 · AI Product Engineer
       url: /phase-1-ai-product-engineer/00-overview.html
       children:

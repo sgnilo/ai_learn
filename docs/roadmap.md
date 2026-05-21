@@ -53,12 +53,13 @@ docs/
     01-tokenizer.md
     02-embedding.md
     03-transformer-attention.md
-    04-context-window-kv-cache.md
-    05-inference.md
-    06-rag.md
-    07-function-calling.md
-    08-agent-workflow.md
-    09-local-model-deployment.md
+    04-lm-head-logits-loss.md
+    05-context-window-kv-cache.md
+    06-inference.md
+    07-rag.md
+    08-function-calling.md
+    09-agent-workflow.md
+    10-local-model-deployment.md
   phase-1-ai-product-engineer/
     00-overview.md
     01-ai-workflow-design.md

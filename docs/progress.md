@@ -10,15 +10,15 @@ title: "Progress"
 | Item | Value |
 | --- | --- |
 | Active phase | Phase 0：建立 AI / LLM 世界观 |
-| Active topics | Tokenizer, Embedding, Transformer, Context Window / KV Cache |
+| Active topics | Tokenizer, Embedding, Transformer, LM Head / Logits / Loss |
 | Practice policy | 练习代码不作为公开入口；整理后以代码块进入主题笔记 |
-| Next review | 开始 Context Window 与 KV Cache：context length、prefill、decode、KV cache 和推理成本 |
+| Next review | 开始 LM Head、Logits、Loss 与训练循环：hidden_states 如何变成 next-token 训练信号 |
 
 ## Phase Status
 
 | Phase | Status | Notes |
 | --- | --- | --- |
-| [Phase 0](./phase-0-llm-worldview/00-overview.md) | In progress | Tokenizer 第一轮完成；Embedding 已完成 text similarity 练习；Transformer 第一轮完成；下一步进入 Context Window 与 KV Cache |
+| [Phase 0](./phase-0-llm-worldview/00-overview.md) | In progress | Tokenizer 第一轮完成；Embedding 已完成 text similarity 练习；Transformer 第一轮完成；当前进入 LM Head / Logits / Loss |
 | [Phase 1](./phase-1-ai-product-engineer/00-overview.md) | Not started | AI workflow 和 Agent 产品 |
 | [Phase 2](./phase-2-model-fine-tuning/00-overview.md) | Not started | QLoRA / SFT 微调 |
 | [Phase 3](./phase-3-ai-system-engineering/00-overview.md) | Not started | Eval、serving、memory、retrieval |
@@ -28,7 +28,8 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
-| 2026-05-21 | Phase 0 / Transformer | 完成 Transformer 与 Attention 章节复盘，串起 token ids、embedding、Q/K/V、causal mask、FFN、residual、LM head 到 next token | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md) | 开始 Context Window 与 KV Cache |
+| 2026-05-21 | Phase 0 / Curriculum | 纠正 Transformer 后的学习顺序，新增 LM Head / Logits / Loss 章节，将 Context Window / KV Cache 顺延到训练闭环之后 | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md) | 学习 LM head 与 logits |
+| 2026-05-21 | Phase 0 / Transformer | 完成 Transformer 与 Attention 章节复盘，串起 token ids、embedding、Q/K/V、causal mask、FFN、residual、LM head 到 next token | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md) | 补齐 LM Head / Logits / Loss |
 | 2026-05-21 | Phase 0 / Transformer Practice | 完成 Self-Attention 与 TransformerBlock 练习，串起 QK score、causal attention 和 Pre-Norm residual forward | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md), `practice/src/ai_practice/self_attention.py`, `practice/src/ai_practice/transformer_block.py` | 阅读真实 causal self-attention 实现 |
 | 2026-05-19 | Phase 0 / Transformer | 记录 Multi-Head Attention 的动机：多套相似度空间、多张 attention 图，而不是单纯增加参数 | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md) | 完成 self-attention 与 TransformerBlock 练习 |
 | 2026-05-19 | Phase 0 / Transformer Practice | 搭建 Self-Attention 与 TransformerBlock 巩固练习，覆盖 Q/K score、causal self-attention 和 Pre-Norm forward 顺序 | [Transformer 与 Attention](./phase-0-llm-worldview/03-transformer-attention.md), `practice/tests/test_self_attention.py`, `practice/tests/test_transformer_block.py` | 实现两个练习到测试通过 |

@@ -18,12 +18,13 @@ title: "Sitemap"
 - [Tokenizer](./phase-0-llm-worldview/01-tokenizer.md)
 - [Embedding](./phase-0-llm-worldview/02-embedding.md)
 - [Transformer / Attention](./phase-0-llm-worldview/03-transformer-attention.md)
-- [Context Window / KV Cache](./phase-0-llm-worldview/04-context-window-kv-cache.md)
-- [Inference](./phase-0-llm-worldview/05-inference.md)
-- [RAG](./phase-0-llm-worldview/06-rag.md)
-- [Function Calling](./phase-0-llm-worldview/07-function-calling.md)
-- [Agent Workflow](./phase-0-llm-worldview/08-agent-workflow.md)
-- [Local Model Deployment](./phase-0-llm-worldview/09-local-model-deployment.md)
+- [LM Head / Logits / Loss](./phase-0-llm-worldview/04-lm-head-logits-loss.md)
+- [Context Window / KV Cache](./phase-0-llm-worldview/05-context-window-kv-cache.md)
+- [Inference](./phase-0-llm-worldview/06-inference.md)
+- [RAG](./phase-0-llm-worldview/07-rag.md)
+- [Function Calling](./phase-0-llm-worldview/08-function-calling.md)
+- [Agent Workflow](./phase-0-llm-worldview/09-agent-workflow.md)
+- [Local Model Deployment](./phase-0-llm-worldview/10-local-model-deployment.md)
 
 ## Phase 1：AI Product Engineer
 

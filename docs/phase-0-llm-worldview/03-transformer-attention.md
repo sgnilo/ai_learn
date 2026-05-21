@@ -1233,4 +1233,4 @@ transformer_block.py：Pre-Norm residual forward
 
 ## 下一步
 
-进入 [Context Window 与 KV Cache](./04-context-window-kv-cache.md)，重点理解上下文长度、prefill/decode、KV cache 和推理成本。
+进入 [LM Head、Logits、Loss 与训练循环](./04-lm-head-logits-loss.md)，补齐 `hidden_states -> logits -> loss -> backpropagation -> optimizer update` 这条训练主链路。
