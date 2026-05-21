@@ -318,6 +318,45 @@ def logits_to_probabilities(logits_by_position):
 PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
 ```
 
+### 2026-05-21：Next-token Loss coding 练习
+
+本轮搭好的练习入口：
+
+- 源码入口：`practice/src/ai_practice/next_token_loss.py`
+- 测试入口：`practice/tests/test_next_token_loss.py`
+- 当前状态：测试已写好，源码函数暂时抛出 `NotImplementedError`，用于 TDD 红灯练习。
+
+练习目标：
+
+```text
+logits: [batch_size, seq_len, vocab_size]
+labels: [batch_size, seq_len]
+
+shift_logits = logits[:, :-1, :]
+shift_labels = labels[:, 1:]
+```
+
+待实现函数：
+
+```python
+def shift_for_next_token_loss(logits, labels):
+    ...
+
+
+def negative_log_likelihood(probabilities, label):
+    ...
+
+
+def shifted_cross_entropy_loss(logits, labels):
+    ...
+```
+
+验证命令：
+
+```bash
+PYTHONPATH=practice/src python3 -m unittest practice.tests.test_next_token_loss
+```
+
 ## 关键代码
 
 ```text
