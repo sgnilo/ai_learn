@@ -7,7 +7,7 @@ title: "Transformer 与 Attention"
 
 ## 学习状态
 
-学习中。
+第一轮完成。
 
 ## 当前理解
 
@@ -1177,6 +1177,60 @@ Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
 
 Transformer 可以先理解成一个上下文加工器。Embedding 提供每个 token 的初始坐标，Transformer block 反复通过 attention 交换上下文信息，再通过 FFN 加工特征，最终得到可用于预测下一个 token 的 hidden states。
 
+完整链路可以压缩成：
+
+```text
+文本
+-> tokenizer
+-> token ids
+-> embedding lookup
+-> hidden_states: [batch_size, seq_len, hidden_size]
+-> 多层 Transformer block
+   -> Norm(x)
+   -> Wq / Wk / Wv 投影
+   -> Q / K / V
+   -> scores = Q @ K.T / sqrt(d_k)
+   -> causal mask
+   -> softmax weights
+   -> attention_out = weights @ V
+   -> residual: x = x + attention_out
+   -> Norm(x)
+   -> FFN / SwiGLU
+   -> residual: x = x + ffn_out
+-> final hidden_states
+-> LM head
+-> logits: [batch_size, seq_len, vocab_size]
+-> 取最后一个位置 logits[:, -1, :]
+-> 预测下一个 token
+```
+
+这一章最重要的统一视角：
+
+```text
+Attention：在 token 维度上做信息路由
+FFN：在每个 token 内部做特征加工
+Residual：把子层算出的变化量叠加回原表示
+Norm：稳定送入子层的数值尺度
+Multi-head：让模型拥有多套相似度空间和多张 attention 图
+Causal mask：保证 decoder-only LLM 只能看过去，不能偷看未来
+```
+
+工程实现上：
+
+```text
+TransformerBlock 类定义结构
+多个 block 实例持有各层独立参数
+forward 循环让 hidden_states 逐层被 transform
+```
+
+本章练习已经完成：
+
+```text
+causal_mask.py：下三角 mask、masked softmax、weights @ V
+self_attention.py：QK score、causal self-attention
+transformer_block.py：Pre-Norm residual forward
+```
+
 ## 下一步
 
-阅读 minGPT / nanoGPT 或 Hugging Face 模型里的 causal self-attention 实现，对照 mask、scores、softmax 和 forward 循环。
+进入 [Context Window 与 KV Cache](./04-context-window-kv-cache.md)，重点理解上下文长度、prefill/decode、KV cache 和推理成本。

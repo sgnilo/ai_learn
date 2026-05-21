@@ -7,7 +7,7 @@ title: "Context Window 与 KV Cache"
 
 ## 学习状态
 
-尚未学习。
+准备开始。
 
 ## 当前理解
 
