@@ -240,10 +240,55 @@ def lm_head_logits(hidden_states, lm_head):
 PYTHONPATH=practice/src python3 -m unittest discover -s practice/tests
 ```
 
+### 2026-05-21：Logits Softmax coding 练习
+
+本轮搭好的练习入口：
+
+- 源码入口：`practice/src/ai_practice/softmax_logits.py`
+- 测试入口：`practice/tests/test_softmax_logits.py`
+- 当前状态：测试已写好，源码函数暂时抛出 `NotImplementedError`，用于 TDD 红灯练习。
+
+练习目标：
+
+```text
+logits:        [vocab_size]
+probabilities: [vocab_size]
+
+logits_by_position: [seq_len, vocab_size]
+probabilities:      [seq_len, vocab_size]
+```
+
+待实现函数：
+
+```python
+def softmax(logits: list[float]) -> list[float]:
+    ...
+
+
+def logits_to_probabilities(
+    logits_by_position: list[list[float]],
+) -> list[list[float]]:
+    ...
+```
+
+关键点：
+
+```text
+每个位置的 vocab logits 单独做 softmax
+不要把 [seq_len, vocab_size] 展平成一个大列表一起算
+```
+
+验证命令：
+
+```bash
+PYTHONPATH=practice/src python3 -m unittest practice.tests.test_softmax_logits
+```
+
 ## 关键代码
 
 ```text
 logits = hidden_states @ LM_head
+probabilities = softmax(logits)
 ```
 
 ## 踩坑

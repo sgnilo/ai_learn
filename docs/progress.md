@@ -12,7 +12,7 @@ title: "Progress"
 | Active phase | Phase 0：建立 AI / LLM 世界观 |
 | Active topics | Tokenizer, Embedding, Transformer, LM Head / Logits / Loss |
 | Practice policy | 练习代码不作为公开入口；整理后以代码块进入主题笔记 |
-| Next review | 学习 LM head 与 logits：hidden_states 如何映射到 vocab_size 候选分数 |
+| Next review | 实现 logits softmax 练习，理解每个位置如何得到 vocab probability distribution |
 
 ## Phase Status
 
@@ -28,6 +28,7 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
+| 2026-05-21 | Phase 0 / LM Head Practice | 搭建 logits softmax 练习测试，覆盖单行 logits 到概率，以及按位置逐行 softmax | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/tests/test_softmax_logits.py` | 实现 `practice/src/ai_practice/softmax_logits.py` 到测试通过 |
 | 2026-05-21 | Phase 0 / LM Head Practice | 完成 LM Head 练习实现，手写 hidden_states 到 vocab logits 的矩阵投影 | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/src/ai_practice/lm_head.py` | 学习 logits 到 softmax probability |
 | 2026-05-21 | Phase 0 / LM Head Practice | 搭建 LM Head 练习测试，覆盖 hidden_states 到 vocab logits 的矩阵投影和输出 shape | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/tests/test_lm_head.py` | 实现 `practice/src/ai_practice/lm_head.py` 到测试通过 |
 | 2026-05-21 | Phase 0 / LM Head | 记录训练主链路总览，串起 hidden_states、LM head、logits、labels、loss、backpropagation 和 optimizer update | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md) | 学习 LM head 与 logits |
