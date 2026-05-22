@@ -28,6 +28,7 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
+| 2026-05-22 | Phase 0 / Backpropagation Practice | 搭建 gradient / backprop 练习测试，覆盖单参数梯度、输入梯度、两层链式法则和 LM head backward | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/tests/test_gradient_backprop.py` | 实现 `practice/src/ai_practice/gradient_backprop.py` 到测试通过 |
 | 2026-05-21 | Phase 0 / Backpropagation | 记录导数、链式法则、输入梯度传递、矩阵乘法梯度和参数更新不会重复叠加的心智模型 | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md) | 学习 optimizer 与 AdamW |
 | 2026-05-21 | Phase 0 / LM Head Practice | 完成 next-token loss 练习实现，串起 logits/labels shift、softmax、NLL 和 shifted cross entropy 平均 loss | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/src/ai_practice/next_token_loss.py` | 学习反向传播与梯度更新 |
 | 2026-05-21 | Phase 0 / LM Head Practice | 完成 logits softmax 练习实现，理解每个位置独立得到 vocab probability distribution | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/src/ai_practice/softmax_logits.py` | 学习 label shifting |

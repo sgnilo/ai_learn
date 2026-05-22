@@ -640,6 +640,63 @@ backprop 是沿 forward 的反方向应用链式法则，把 loss 的责任信�
 optimizer 才是真正修改参数的部分。
 ```
 
+### 2026-05-22：Gradient / Backprop coding 练习
+
+本轮搭好的练习入口：
+
+- 源码入口：`practice/src/ai_practice/gradient_backprop.py`
+- 测试入口：`practice/tests/test_gradient_backprop.py`
+- 当前状态：测试已写好，源码函数暂时抛出 `NotImplementedError`，用于 TDD 红灯练习。
+
+练习目标：
+
+```text
+1. 单参数梯度：
+   y = w * x
+   loss = (y - target)^2
+   d_loss/d_w = 2 * (w*x - target) * x
+
+2. 同时计算参数梯度和输入梯度：
+   d_loss/d_y = 2 * (y - target)
+   d_loss/d_w = d_loss/d_y * x
+   d_loss/d_x = d_loss/d_y * w
+
+3. 两层链式法则：
+   h = w1 * x
+   y = w2 * h
+   loss = (y - target)^2
+
+4. LM head 极简反向传播：
+   logits = H @ W
+   dW[i][j] = H[i] * d_logits[j]
+   dH[i] = sum_j d_logits[j] * W[i][j]
+```
+
+待实现函数：
+
+```python
+def single_parameter_gradient(w, x, target):
+    ...
+
+
+def parameter_and_input_gradients(w, x, target):
+    ...
+
+
+def two_layer_chain_rule(x, w1, w2, target):
+    ...
+
+
+def lm_head_backward(hidden_state, weight, grad_logits):
+    ...
+```
+
+验证命令：
+
+```bash
+PYTHONPATH=practice/src python3 -m unittest practice.tests.test_gradient_backprop
+```
+
 ## 关键代码
 
 ```text
