@@ -3,11 +3,11 @@ layout: default
 title: "AI 学习路线 Roadmap"
 ---
 
-# Roadmap
+# AI 学习路线 Roadmap
 
-返回：[首页](./README.md) / [Progress](./progress.md) / [Sitemap](./sitemap.md)
+返回：[AI 学习](./ai/00-overview.md) / [全栈学习](./full-stack/00-overview.md) / [开源项目研读](./open-source/00-overview.md) / [Progress](./progress.md) / [Sitemap](./sitemap.md)
 
-从前端工程转向 AI 产品、Agent 系统与模型训练的学习路线。每个主题单独维护笔记，学习过程记录在 [Progress](./progress.md)。
+这是 AI 大类的学习路线，从前端工程转向 AI 产品、Agent 系统与模型训练。每个主题单独维护笔记，学习过程与全栈、开源项目研读统一记录在 [Progress](./progress.md)。
 
 原始路线来源：[ChatGPT 共享路线](https://chatgpt.com/share/6a0972b0-4854-839a-9c2b-ef2c0d8f1de0)
 
@@ -48,6 +48,17 @@ AI Product Engineer
 README.md
 docs/
   README.md
+  ai/
+    00-overview.md
+  full-stack/
+    00-overview.md
+    roadmap.md
+    01-server-side-panorama.md
+    02-backend-http-foundations.md
+  open-source/
+    00-overview.md
+    roadmap.md
+    studies/
   phase-0-llm-worldview/
     00-overview.md
     01-tokenizer.md

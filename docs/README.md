@@ -1,21 +1,31 @@
 ---
 layout: default
-title: "AI 学习笔记"
+title: "工程学习笔记"
 ---
 
-# AI 学习笔记
+# 工程学习笔记
 
-个人 AI 学习 wiki。这里保留路线、主题笔记、项目练习、资源索引和进度记录。
+个人工程学习 wiki。AI、全栈与开源项目研读是三条独立分类、同步推进的学习线。
 
 ## 索引
 
 | 页面 | 内容 |
 | --- | --- |
-| [Roadmap](./roadmap.md) | 学习路线、阶段目标、主题顺序 |
+| [AI Roadmap](./roadmap.md) | AI 学习路线、阶段目标、主题顺序 |
+| [Full-stack Roadmap](./full-stack/roadmap.md) | 全栈学习路线、模块目标、实践顺序 |
+| [Open-source Roadmap](./open-source/roadmap.md) | 用真实项目训练源码追踪、验证和设计迁移 |
 | [Progress](./progress.md) | 学习记录、当前状态、下一步 |
 | [Sitemap](./sitemap.md) | 全部页面目录 |
 
-## 学习阶段
+## 学习大类
+
+| 大类 | 目标 | 状态 | 入口 |
+| --- | --- | --- | --- |
+| AI 学习 | LLM 基础、AI 产品、模型训练与 AI 系统工程 | 进行中 | [AI 学习](./ai/00-overview.md) |
+| 全栈学习 | 从前端能力扩展到后端、数据、交付与系统闭环 | 进行中 | [全栈学习](./full-stack/00-overview.md) |
+| 开源项目研读 | 沿真实调用链读源码、运行验证并提炼工程取舍 | 进行中 | [开源项目研读](./open-source/00-overview.md) |
+
+## AI 学习阶段
 
 | 阶段 | 主题 | 入口 |
 | --- | --- | --- |
@@ -27,14 +37,12 @@ title: "AI 学习笔记"
 
 ## 当前进度
 
-| 阶段 | 状态 | 最近笔记 |
+| 大类 | 当前模块 | 下一步 |
 | --- | --- | --- |
-| Phase 0 | 进行中 | [Tokenizer](./phase-0-llm-worldview/01-tokenizer.md)、[Embedding](./phase-0-llm-worldview/02-embedding.md) |
-| Phase 1 | 未开始 | [Overview](./phase-1-ai-product-engineer/00-overview.md) |
-| Phase 2 | 未开始 | [Overview](./phase-2-model-fine-tuning/00-overview.md) |
-| Phase 3 | 未开始 | [Overview](./phase-3-ai-system-engineering/00-overview.md) |
-| Phase 4 | 暂缓 | [Overview](./phase-4-research-optional/00-overview.md) |
+| AI | Phase 0 · LM Head / Logits / Loss | Optimizer：SGD / AdamW 如何更新参数 |
+| 全栈 | Module 0 · [后端运行时与 HTTP 基础](./full-stack/02-backend-http-foundations.md) | 拆解 `server.listen()` 背后的进程、文件描述符与 socket |
+| 开源项目 | [openai/codex · 系统边界与协议骨架](./open-source/studies/openai-codex.md) | 建立 CLI、`Op / EventMsg` 与 `CodexThread` 调用图 |
 
 ## 复习方式
 
-按 [Roadmap](./roadmap.md) 进入阶段页；阶段页记录主题状态，主题页记录理解、代码、问题和复盘。练习代码只在整理后作为代码块进入主题笔记。需要回看学习轨迹时看 [Progress](./progress.md)。
+先选择 [AI 学习](./ai/00-overview.md)、[全栈学习](./full-stack/00-overview.md) 或 [开源项目研读](./open-source/00-overview.md)，再进入对应阶段、模块或项目。三条学习线共享 [Progress](./progress.md)，但各自维护路线和主题笔记。

@@ -2,13 +2,48 @@
   url: /
 - title: Overview
   url: /overview.html
-- title: Roadmap
+- title: AI Roadmap
   url: /roadmap.html
 - title: Progress
   url: /progress.html
 - title: Sitemap
   url: /sitemap.html
-- group: Learning Phases
+- group: Learning Tracks
+  items:
+    - title: AI Learning
+      url: /ai/00-overview.html
+    - title: Full-stack Learning
+      url: /full-stack/00-overview.html
+      children:
+        - title: Overview
+          url: /full-stack/00-overview.html
+        - title: Roadmap
+          url: /full-stack/roadmap.html
+        - title: Diagnostic · 2026-08-17
+          url: /full-stack/diagnostic-2026-08-17.html
+        - title: Server-side Panorama
+          url: /full-stack/01-server-side-panorama.html
+        - title: Backend Runtime / HTTP
+          url: /full-stack/02-backend-http-foundations.html
+    - title: Open-source Project Learning
+      url: /open-source/00-overview.html
+      children:
+        - title: Overview
+          url: /open-source/00-overview.html
+        - title: Roadmap
+          url: /open-source/roadmap.html
+        - title: openai/codex
+          url: /open-source/studies/openai-codex.html
+          children:
+            - title: 00 · Real Architecture Map
+              url: /open-source/studies/openai-codex/00-real-architecture-map.html
+            - title: 01 · System Boundary / Protocol
+              url: /open-source/studies/openai-codex/01-system-boundary-and-protocol.html
+            - title: 04 · Tool Routing / Dispatch
+              url: /open-source/studies/openai-codex/04-tool-routing-and-dispatch.html
+        - title: Pi Agent Harness
+          url: /open-source/studies/pi.html
+- group: AI Learning Phases
   items:
     - title: Phase 0 · LLM Worldview
       url: /phase-0-llm-worldview/00-overview.html
@@ -40,6 +75,8 @@
       children:
         - title: Overview
           url: /phase-1-ai-product-engineer/00-overview.html
+        - title: Agent Diagnostic · 2026-08-24
+          url: /phase-1-ai-product-engineer/diagnostic-agent-2026-08-24.html
         - title: AI Workflow Design
           url: /phase-1-ai-product-engineer/01-ai-workflow-design.html
         - title: Agent State Management
@@ -154,5 +191,7 @@
           url: /resources/tools.html
         - title: Glossary
           url: /resources/glossary.html
+        - title: Checkpoint
+          url: /resources/concepts/checkpoint.html
     - title: Glossary
       url: /resources/glossary.html

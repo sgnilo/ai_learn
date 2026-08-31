@@ -1,0 +1,4 @@
+interface:
+  display_name: "Open Source Project Learning"
+  short_description: "Trace and verify one real source-code path."
+  default_prompt: "Use $open-source-project-learning to guide me through one evidence-backed path in an open-source repository."

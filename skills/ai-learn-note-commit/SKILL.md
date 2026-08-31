@@ -10,16 +10,18 @@ description: Update the ai_learn project notes from the current learning convers
 Use this skill only inside `/Users/bytedance/mind/ai_learn`.
 
 1. Inspect the current conversation and identify the learning topic.
-2. Update the matching topic note under `docs/phase-*` or `docs/projects`.
-3. Preserve the repository's note structure: `当前理解`, `核心概念`, `实践记录`, `关键代码`, `踩坑`, `复盘`, `下一步`.
+2. Update the matching topic note under `docs/phase-*`, `docs/full-stack`, `docs/open-source/studies`, or `docs/projects`.
+3. Preserve the matching note structure:
+   - topic notes: `当前理解`, `核心概念`, `实践记录`, `关键代码`, `踩坑`, `复盘`, `下一步`
+   - open-source studies: `研读目标与版本`, `仓库地图`, `核心调用链`, `设计取舍`, `验证实验`, `我的复述与纠偏`, `可迁移结论`, `未解决问题`, `下一步`
 4. Put each new exercise under `实践记录` with:
    - date and title
    - short understanding summary
    - relevant code snippet if code was discussed or changed
    - relevant test or verification snippet when available
 5. Update overview/progress files when the topic status changed:
-   - phase `00-overview.md`
-   - `docs/roadmap.md`
+   - the matching track or phase `00-overview.md`
+   - the matching track `roadmap.md`
    - `docs/sitemap.md` only when files are added, removed, or renamed
 6. Run cheap verification:
    - For Python practice changes: `cd practice && PYTHONPATH=src python3 -m unittest discover -s tests`

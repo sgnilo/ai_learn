@@ -9,10 +9,27 @@ title: "Sitemap"
 
 - [Home](./README.md)
 - [Overview](./overview.md)
-- [Roadmap](./roadmap.md)
+- [AI Roadmap](./roadmap.md)
+- [Open-source Roadmap](./open-source/roadmap.md)
 - [Progress](./progress.md)
 
-## Phase 0：建立 AI / LLM 世界观
+## Learning Tracks
+
+- [AI 学习](./ai/00-overview.md)
+- [全栈学习](./full-stack/00-overview.md)
+- [全栈学习路线](./full-stack/roadmap.md)
+- [全栈摸底评估（2026-08-17）](./full-stack/diagnostic-2026-08-17.md)
+- [服务端全景图](./full-stack/01-server-side-panorama.md)
+- [后端运行时与 HTTP 基础](./full-stack/02-backend-http-foundations.md)
+- [开源项目研读](./open-source/00-overview.md)
+- [开源项目研读路线](./open-source/roadmap.md)
+- [openai/codex 源码学习路线](./open-source/studies/openai-codex.md)
+- [openai/codex · 真实架构全景图](./open-source/studies/openai-codex/00-real-architecture-map.md)
+- [openai/codex 01 · 系统边界与协议骨架](./open-source/studies/openai-codex/01-system-boundary-and-protocol.md)
+- [openai/codex 04 · 工具路由与执行回流](./open-source/studies/openai-codex/04-tool-routing-and-dispatch.md)
+- [Pi Agent Harness 定位](./open-source/studies/pi.md)
+
+## AI · Phase 0：建立 AI / LLM 世界观
 
 - [Overview](./phase-0-llm-worldview/00-overview.md)
 - [Tokenizer](./phase-0-llm-worldview/01-tokenizer.md)
@@ -29,6 +46,7 @@ title: "Sitemap"
 ## Phase 1：AI Product Engineer
 
 - [Overview](./phase-1-ai-product-engineer/00-overview.md)
+- [Agent 工程摸底评估（2026-08-24）](./phase-1-ai-product-engineer/diagnostic-agent-2026-08-24.md)
 - [AI Workflow Design](./phase-1-ai-product-engineer/01-ai-workflow-design.md)
 - [Agent State Management](./phase-1-ai-product-engineer/02-agent-state-management.md)
 - [Memory and Tool Calling](./phase-1-ai-product-engineer/03-memory-and-tool-calling.md)
@@ -92,3 +110,4 @@ title: "Sitemap"
 - [Papers](./resources/papers.md)
 - [Tools](./resources/tools.md)
 - [Glossary](./resources/glossary.md)
+- [Checkpoint](./resources/concepts/checkpoint.md)

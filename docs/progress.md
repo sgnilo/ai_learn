@@ -9,25 +9,65 @@ title: "Progress"
 
 | Item | Value |
 | --- | --- |
-| Active phase | Phase 0：建立 AI / LLM 世界观 |
-| Active topics | Tokenizer, Embedding, Transformer, LM Head / Logits / Loss |
+| Active tracks | AI 学习、全栈学习、开源项目研读 |
+| AI current | Phase 0：LM Head / Logits / Loss |
+| AI next | 学习 optimizer：SGD / AdamW 如何基于梯度更新参数 |
+| Full-stack current | Module 0：[后端运行时与 HTTP 基础](./full-stack/02-backend-http-foundations.md) |
+| Full-stack next | 单元 0.1：拆解 `server.listen()` 背后的 process、file descriptor 与 socket |
+| Open-source current | [openai/codex · 主题 4：工具路由与执行回流](./open-source/studies/openai-codex/04-tool-routing-and-dispatch.md) |
+| Open-source next | 对照一个无副作用 handler 与 `exec_command`，验证 Registry middleware 和安全执行面的边界 |
 | Practice policy | 练习代码不作为公开入口；整理后以代码块进入主题笔记 |
-| Next review | 学习 optimizer：SGD / AdamW 如何基于梯度更新参数 |
 
-## Phase Status
+## AI Phase Status
 
 | Phase | Status | Notes |
 | --- | --- | --- |
 | [Phase 0](./phase-0-llm-worldview/00-overview.md) | In progress | Tokenizer 第一轮完成；Embedding 已完成 text similarity 练习；Transformer 第一轮完成；当前进入 LM Head / Logits / Loss |
-| [Phase 1](./phase-1-ai-product-engineer/00-overview.md) | Not started | AI workflow 和 Agent 产品 |
+| [Phase 1](./phase-1-ai-product-engineer/00-overview.md) | Baseline assessed | Agent 工程约 L2+；路线尚未正式开始 |
 | [Phase 2](./phase-2-model-fine-tuning/00-overview.md) | Not started | QLoRA / SFT 微调 |
 | [Phase 3](./phase-3-ai-system-engineering/00-overview.md) | Not started | Eval、serving、memory、retrieval |
 | [Phase 4](./phase-4-research-optional/00-overview.md) | Deferred | 研究主题储备 |
+
+## Full-stack Module Status
+
+| Module | Status | Notes |
+| --- | --- | --- |
+| [Baseline](./full-stack/01-server-side-panorama.md) | First pass complete | 服务端全景作为导航图 |
+| [Module 0](./full-stack/02-backend-http-foundations.md) | In progress | Runtime、进程、Socket、网络与 HTTP |
+| Module 1 | Not started | 流量入口与请求管线 |
+| Module 2 | Not started | API 语义与应用架构 |
+| Module 3 | Not started | 数据库、Transaction 与 ORM |
+| Module 4 | Not started | Cache、Queue 与一致性 |
+| Module 5 | Not started | Authentication、Authorization 与安全 |
+| Module 6 | Not started | Container、部署与 CI/CD |
+| Module 7 | Not started | 可观测性、性能与可靠性 |
+| Module 8 | Not started | 产品化全栈项目 |
+
+## Open-source Study Status
+
+| Item | Status | Notes |
+| --- | --- | --- |
+| [研读方法](./open-source/roadmap.md) | Ready | 以问题、调用链、运行证据和复述形成闭环 |
+| [openai/codex](./open-source/studies/openai-codex.md) | In progress | 本地 revision `2df6705`；主题 1 调用图已完成，待运行两个聚焦测试 |
 
 ## Log
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
+| 2026-08-27 | Phase 1 / Agent Tool Design | 建立跨 Agent 系统的 Tool 四层模型与设计准则，覆盖 capability 粒度、schema、读写分离、Policy/approval/sandbox、action identity、结构化错误、证据、有界输出，以及 Coding Agent、Workflow、Multi-agent、MCP、Code Mode 的差异 | [Agent Tool Design](./phase-1-ai-product-engineer/concepts/agent-tool-design.md), [Memory and Tool Calling](./phase-1-ai-product-engineer/03-memory-and-tool-calling.md) | 选择一个只读 Tool 和一个 mutation Tool，完成 contract 与故障恢复练习 |
+| 2026-08-25 | Open-source / Pi | 区分 Pi 的多层身份：终端 coding-agent 工具、可嵌入 coding-agent harness/SDK、agent-core runtime，以及 LLM/TUI/extension 支撑包；作为 Codex 的对照项目，不切换当前主线 | [Pi Agent Harness 定位](./open-source/studies/pi.md) | 若正式研读，先拉取本地仓库并锁定 revision，再追踪 `AgentSession → Agent → agent loop → tool execution` |
+| 2026-08-25 | Open-source / openai/codex | 梳理 checkpoint 谱系：compaction history base、MCP provenance、rollout projection cursor、external import CAS、metadata backfill watermark、SQLite WAL 与 V8 microtask；区分 durable rollout substrate 和整 Runtime 快照 | [Checkpoint](./resources/concepts/checkpoint.md) | 沿 resume 调用链验证 compaction checkpoint、suffix replay 与 rollback survival semantics |
+| 2026-08-25 | Open-source / openai/codex | 补齐 Code Mode：ToolMode exposure、外层 `exec/wait`、thread-owned CodeModeSession、V8 cell、nested-tool delegate 回环、yield/wait 与原安全执行路径复用 | [真实架构全景图](./open-source/studies/openai-codex/00-real-architecture-map.md), [工具路由与执行回流](./open-source/studies/openai-codex/04-tool-routing-and-dispatch.md) | 对照集成测试验证 nested `exec_command` 与 `wait` 回流 |
+| 2026-08-24 | Open-source / openai/codex | 拆解工具的双向路由：step 构建时的 exposure/spec、Responses item 归一化、并发调度、Registry middleware、ToolOutput 回灌与 follow-up sampling | [工具路由与执行回流](./open-source/studies/openai-codex/04-tool-routing-and-dispatch.md) | 对比无副作用 handler 与 `exec_command` 的执行路径 |
+| 2026-08-24 | Open-source / openai/codex | 基于本地 revision 绘制完整 runtime 架构图，覆盖宿主适配、App Server、Core command loop、模型/工具闭环、安全执行、扩展、多 Agent、持久化和事件回传 | [真实架构全景图](./open-source/studies/openai-codex/00-real-architecture-map.md) | 用两个聚焦测试验证图中的 start/steer 与异步事件边界 |
+| 2026-08-24 | Open-source / openai/codex | 细化一次 TUI 输入的三条路径：App Server request、Core command admission 与异步 event lifecycle；标注 start/steer 并发分支、ID 关联和测试证据 | [系统边界与协议骨架](./open-source/studies/openai-codex/01-system-boundary-and-protocol.md) | 运行 concurrent submission 与 `TurnStarted` prewarm 聚焦测试 |
+| 2026-08-24 | Open-source / openai/codex | 以当前源码 revision 为基线，将大型 monorepo 拆为协议、turn loop、模型、工具、安全、持久化、扩展、多 Agent、App Server/SDK 和测试九个主题 | [openai/codex 源码学习路线](./open-source/studies/openai-codex.md) | 从 CLI、`Op / EventMsg` 与 `CodexThread` 建立第一张调用图 |
+| 2026-08-24 | Open-source Learning | 新增开源项目研读支线和学习 Agent，建立选题、仓库地图、调用链、验证、复述与迁移闭环 | [开源项目研读](./open-source/00-overview.md), [研读路线](./open-source/roadmap.md) | 选择首个项目和一个可验证的源码问题 |
+| 2026-08-24 | Phase 1 / Agent Diagnostic | 完成 Agent Runtime、状态、审批、Tool Security、Eval 与 Multi-agent 的开放式摸底，基线为 L2+，部分维度接近 L3 | [Agent 工程摸底评估](./phase-1-ai-product-engineer/diagnostic-agent-2026-08-24.md) | 深化 durable action、跨系统幂等、Capability Policy 和 trajectory eval |
+| 2026-08-17 | Full-stack / Diagnostic | 完成第一轮开放场景摸底，记录 Runtime、数据库并发、安全、容器与可靠性等模块的 L1-L2 基线和优先缺口 | [全栈摸底评估](./full-stack/diagnostic-2026-08-17.md) | 从 `server.listen()` 背后的 process、file descriptor 与 socket 开始深挖 |
+| 2026-08-17 | Full-stack / Depth Roadmap | 将全栈路线从组件覆盖型重构为 L0-L4 深度型路线，要求机制、观察、故障注入、取舍与复述闭环 | [Full-stack Roadmap](./full-stack/roadmap.md), [后端运行时与 HTTP 基础](./full-stack/02-backend-http-foundations.md) | 从 `server.listen()` 背后的 process、file descriptor 与 socket 开始 |
+| 2026-08-17 | Full-stack / Server-side Panorama | 从请求、数据、交付三条路径串起网关、中间件、路由、View、ORM、数据库、容器化与部署 | [服务端全景图](./full-stack/01-server-side-panorama.md) | 进入后端运行时与 HTTP 基础，用最小服务验证请求链路 |
+| 2026-08-17 | Learning Structure | 新增全栈学习大类，与 AI 学习分轨并同步推进 | [AI 学习](./ai/00-overview.md), [全栈学习](./full-stack/00-overview.md), [Full-stack Roadmap](./full-stack/roadmap.md) | 全栈先学习后端运行时与 HTTP 请求链路；AI 继续 optimizer |
 | 2026-05-22 | Phase 0 / Backpropagation Practice | 搭建 gradient / backprop 练习测试，覆盖单参数梯度、输入梯度、两层链式法则和 LM head backward | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/tests/test_gradient_backprop.py` | 实现 `practice/src/ai_practice/gradient_backprop.py` 到测试通过 |
 | 2026-05-21 | Phase 0 / Backpropagation | 记录导数、链式法则、输入梯度传递、矩阵乘法梯度和参数更新不会重复叠加的心智模型 | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md) | 学习 optimizer 与 AdamW |
 | 2026-05-21 | Phase 0 / LM Head Practice | 完成 next-token loss 练习实现，串起 logits/labels shift、softmax、NLL 和 shifted cross entropy 平均 loss | [LM Head、Logits、Loss 与训练循环](./phase-0-llm-worldview/04-lm-head-logits-loss.md), `practice/src/ai_practice/next_token_loss.py` | 学习反向传播与梯度更新 |
