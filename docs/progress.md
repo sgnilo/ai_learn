@@ -13,7 +13,7 @@ title: "Progress"
 | AI current | Phase 0：LM Head / Logits / Loss |
 | AI next | 学习 optimizer：SGD / AdamW 如何基于梯度更新参数 |
 | Full-stack current | Module 0：[后端运行时与 HTTP 基础](./full-stack/02-backend-http-foundations.md) |
-| Full-stack next | 单元 0.1：拆解 `server.listen()` 背后的 process、file descriptor 与 socket |
+| Full-stack next | 用最小 Node.js 服务观察 listening FD、connection FD 与 keep-alive 请求复用 |
 | Open-source current | [openai/codex · 主题 4：工具路由与执行回流](./open-source/studies/openai-codex/04-tool-routing-and-dispatch.md) |
 | Open-source next | 对照一个无副作用 handler 与 `exec_command`，验证 Registry middleware 和安全执行面的边界 |
 | Practice policy | 练习代码不作为公开入口；整理后以代码块进入主题笔记 |
@@ -54,6 +54,7 @@ title: "Progress"
 
 | Date | Area | What changed | Output | Next |
 | --- | --- | --- | --- | --- |
+| 2026-08-31 | Full-stack / Runtime | 建立 process、FD table、file descriptor、内核资源抽象与系统调用的映射；区分 listening socket、connection socket、TCP connection 与 HTTP request，并澄清文件式接口、I/O readiness 和 CPU scheduling 的边界 | [File Descriptor、Socket 与系统调用](./full-stack/concepts/file-descriptor-and-socket.md), [后端运行时与 HTTP 基础](./full-stack/02-backend-http-foundations.md) | 用最小 Node.js 服务观察监听 FD、连接 FD 与 keep-alive 请求复用 |
 | 2026-08-27 | Phase 1 / Agent Tool Design | 建立跨 Agent 系统的 Tool 四层模型与设计准则，覆盖 capability 粒度、schema、读写分离、Policy/approval/sandbox、action identity、结构化错误、证据、有界输出，以及 Coding Agent、Workflow、Multi-agent、MCP、Code Mode 的差异 | [Agent Tool Design](./phase-1-ai-product-engineer/concepts/agent-tool-design.md), [Memory and Tool Calling](./phase-1-ai-product-engineer/03-memory-and-tool-calling.md) | 选择一个只读 Tool 和一个 mutation Tool，完成 contract 与故障恢复练习 |
 | 2026-08-25 | Open-source / Pi | 区分 Pi 的多层身份：终端 coding-agent 工具、可嵌入 coding-agent harness/SDK、agent-core runtime，以及 LLM/TUI/extension 支撑包；作为 Codex 的对照项目，不切换当前主线 | [Pi Agent Harness 定位](./open-source/studies/pi.md) | 若正式研读，先拉取本地仓库并锁定 revision，再追踪 `AgentSession → Agent → agent loop → tool execution` |
 | 2026-08-25 | Open-source / openai/codex | 梳理 checkpoint 谱系：compaction history base、MCP provenance、rollout projection cursor、external import CAS、metadata backfill watermark、SQLite WAL 与 V8 microtask；区分 durable rollout substrate 和整 Runtime 快照 | [Checkpoint](./resources/concepts/checkpoint.md) | 沿 resume 调用链验证 compaction checkpoint、suffix replay 与 rollback survival semantics |

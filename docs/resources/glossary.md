@@ -25,6 +25,8 @@ title: "Glossary"
 | [Workflow / Skill / Tool](../phase-1-ai-product-engineer/concepts/workflow-skill-tool.md) | 运行控制、任务方法与执行能力三个不同层次 | 已建页 |
 | [Agent Tool Design](../phase-1-ai-product-engineer/concepts/agent-tool-design.md) | 让模型可选择、Runtime 可治理、执行可观察恢复的能力 contract | 已建页 |
 | [Checkpoint](./concepts/checkpoint.md) | 在明确边界建立可依赖事实，用于调度、协调、恢复或继续；具体保证依领域而定 | 已建页 |
+| [File Descriptor / Socket](../full-stack/concepts/file-descriptor-and-socket.md) | 进程以整数 FD 经由 FD table 间接引用并操作内核 I/O 资源 | 已建页 |
+| [IP Address / Network Interface](../full-stack/concepts/ip-address-and-interface.md) | IP 是配置在网络接口上的协议逻辑地址，用于 packet 投递与路由，而非物理位置 | 已建页 |
 | [Database Buffer / WAL](../full-stack/concepts/database-memory-and-disk.md) | 数据库以内存处理和缓存活跃数据，以 WAL 与稳定存储保证持久性 | 已建页 |
 | LoRA | 参数高效微调方法 | 待深入 |
 | QLoRA | 结合量化的 LoRA 微调方法 | 待深入 |

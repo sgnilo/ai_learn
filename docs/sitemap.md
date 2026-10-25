@@ -21,6 +21,8 @@ title: "Sitemap"
 - [全栈摸底评估（2026-08-17）](./full-stack/diagnostic-2026-08-17.md)
 - [服务端全景图](./full-stack/01-server-side-panorama.md)
 - [后端运行时与 HTTP 基础](./full-stack/02-backend-http-foundations.md)
+- [File Descriptor、Socket 与系统调用](./full-stack/concepts/file-descriptor-and-socket.md)
+- [IP Address、Network Interface 与 Wildcard Bind](./full-stack/concepts/ip-address-and-interface.md)
 - [开源项目研读](./open-source/00-overview.md)
 - [开源项目研读路线](./open-source/roadmap.md)
 - [openai/codex 源码学习路线](./open-source/studies/openai-codex.md)

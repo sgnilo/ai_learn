@@ -36,6 +36,29 @@ browser
 
 本模块先建立这条主链路，再逐步补充并发、超时、错误和资源生命周期。
 
+### `server.listen()` 的资源链路
+
+进程、[File Descriptor 与 Socket](./concepts/file-descriptor-and-socket.md) 的关系可以先压缩为：
+
+```text
+process
+→ 拥有由内核维护的 FD table
+→ fd 是表内的整数索引
+→ 表项间接引用内核资源抽象对象
+→ 系统调用根据 fd 找到资源并分派具体操作
+```
+
+Node.js 调用 `server.listen()` 后，内核创建并绑定 listening socket；进程通过一个 FD 持有它。新 TCP connection 建立后，`accept()` 返回另一个 FD 指向 connection socket，原 listening socket 继续等待其他连接：
+
+```text
+fd 21 → listening socket：等待新 TCP connection
+fd 22 → connection socket：与一个客户端传输字节
+```
+
+HTTP request 不是 socket。HTTP parser 从 connection socket 的字节流中切分请求；HTTP/1.1 keep-alive 下，多个请求可以复用同一 connection socket，并分别产生请求/响应对象、执行 handler。
+
+“Unix 中一切皆文件”也不表示所有资源都是磁盘文件，而是文件、socket、pipe、终端等许多 I/O 资源共享 FD、读取、写入、事件等待和关闭等文件式接口。高级语言通过系统调用进入内核，FD 负责指认资源；I/O readiness 与 CPU scheduling 是另外的机制。
+
 ## 深挖顺序
 
 | 单元 | 主题 | 深度目标 |
@@ -50,6 +73,8 @@ browser
 ## 核心概念
 
 - Process 与 thread
+- [File Descriptor、Socket 与系统调用](./concepts/file-descriptor-and-socket.md)
+- [IP Address、Network Interface 与 Wildcard Bind](./concepts/ip-address-and-interface.md)
 - Event loop 与 async I/O
 - TCP、TLS 与 HTTP 的分层关系
 - HTTP method、status code、header 与 body
@@ -84,4 +109,4 @@ browser
 
 ## 下一步
 
-先学单元 0.1：拆解 `server.listen(port)`，建立 `process -> file descriptor -> listening socket -> connection socket` 的心智模型，再用最小 Node.js 服务和系统观察工具验证。
+用最小 Node.js 服务和系统观察工具验证 `process -> file descriptor -> listening socket -> connection socket`：观察监听 FD、建立 keep-alive 连接，并确认多个 HTTP request 如何复用同一个 connection socket。

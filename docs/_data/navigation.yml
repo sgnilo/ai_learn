@@ -25,6 +25,11 @@
           url: /full-stack/01-server-side-panorama.html
         - title: Backend Runtime / HTTP
           url: /full-stack/02-backend-http-foundations.html
+          children:
+            - title: File Descriptor / Socket
+              url: /full-stack/concepts/file-descriptor-and-socket.html
+            - title: IP Address / Network Interface
+              url: /full-stack/concepts/ip-address-and-interface.html
     - title: Open-source Project Learning
       url: /open-source/00-overview.html
       children:
